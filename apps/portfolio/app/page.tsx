@@ -1,14 +1,18 @@
-import { Fade } from '@umbra/motion';
+import { MotionProvider, Reveal } from '@umbra/motion';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white text-neutral-900">
-      <Fade duration="slow">
+    <MotionProvider
+      preset="calm"
+      as="main"
+      className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white text-neutral-900"
+    >
+      <Reveal trigger="mount" duration="slow">
         <h1 className="text-6xl font-semibold tracking-tight">Timmy</h1>
-      </Fade>
-      <Fade duration="cinematic">
+      </Reveal>
+      <Reveal trigger="mount" duration="cinematic" delay={0.1}>
         <p className="text-neutral-500">Portfolio — built with a tool I built.</p>
-      </Fade>
-    </main>
+      </Reveal>
+    </MotionProvider>
   );
 }

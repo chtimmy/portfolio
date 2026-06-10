@@ -3,6 +3,26 @@
 Running record of resolved decisions during the Umbra build. Newest first. See
 `motion-toolkit-build-plan.md` for the phased plan this implements.
 
+## 2026-06-10 — Phase 2 (Component primitives)
+
+- **9 components shipped.** Batch 1: `Reveal`, `TextReveal`, `Stagger`, `AnimatedNumber`. Batch 2
+  (chosen from the menu): `Marquee`, `Parallax`, `ImageReveal`, `TiltCard`, `Magnetic`. Parked
+  `PageTransition`, `Spotlight`, `Accordion` in `BACKLOG.md`.
+- **`Fade` removed, folded into `Reveal`.** `Reveal` is the canonical entrance (variants
+  `fade`/`slide`/`scale`, `trigger` `inView` default | `mount`). The old `use-entrance` helper is
+  superseded by `use-reveal` (`resolveReveal` pure + `useReveal` hook); tests updated.
+- **Two kinds of timing.** Discrete entrances/transitions read **duration/easing tokens** (the "no
+  raw values" rule). Continuous/interactive showpieces take a dimensionless prop instead — `speed`
+  (Marquee px/s, Parallax fraction) or `strength` (Magnetic) — because scroll/marquee speed isn't a
+  duration. Spring-smoothed showpieces (`TiltCard`, `Magnetic`, `Parallax`) use **spring tokens**.
+- **Reduced motion, per component:** entrances → opacity-only; `AnimatedNumber` → jumps to value;
+  `Marquee` → static; `Parallax` → no transform; `TiltCard`/`Magnetic` → no listeners/transform.
+  All read the shared `useReducedMotion`.
+- **Marquee is CSS-keyframe driven** (two identical groups, seamless `translateX(-50%)`, width
+  measured for constant `speed`, pause-on-hover). Keyframes live in the toolkit's `styles.css`.
+- **Gallery at `/components`** demos all nine under shared preset/reduced/replay controls (extracted
+  `Controls` + `preset-meta`, de-duplicated from the home page).
+
 ## 2026-06-10 — Dropped the `snappy` preset
 
 - **Two presets, not three: `calm` + `expressive`.** Removed `snappy` (decision below superseded).

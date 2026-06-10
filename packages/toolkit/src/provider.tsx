@@ -30,7 +30,7 @@ export interface MotionProviderProps {
    */
   reducedMotion?: boolean;
   /** Render a wrapping element carrying the token CSS variables. Default `'div'`; `false` to skip. */
-  as?: 'div' | 'section' | false;
+  as?: 'div' | 'section' | 'main' | 'article' | false;
   className?: string;
   style?: CSSProperties;
 }

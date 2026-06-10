@@ -8,3 +8,19 @@
 @theme {
   /* Phase 1: --ease-standard, --duration-base, etc. land here. */
 }
+
+/* Marquee — seamless infinite scroll. Duration/direction come from the component as CSS vars. */
+@keyframes umbra-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.umbra-marquee-track[data-animate] {
+  animation: umbra-marquee var(--umbra-marquee-duration, 20s) linear infinite;
+  animation-direction: var(--umbra-marquee-direction, normal);
+}
+
+.umbra-marquee-track[data-animate][data-pause-on-hover]:hover {
+  animation-play-state: paused;
+}

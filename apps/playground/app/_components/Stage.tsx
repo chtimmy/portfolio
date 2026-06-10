@@ -2,7 +2,7 @@
 
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
-import { Fade, useMotionTokens, useReducedMotion } from '@umbra/motion';
+import { Reveal, useMotionTokens, useReducedMotion } from '@umbra/motion';
 
 const ROWS = ['Reveal', 'Stagger', 'Spring', 'Parallax', 'Marquee'];
 
@@ -33,10 +33,10 @@ export function Stage() {
     <div className="flex flex-col gap-10">
       {/* 1 — entrance fade */}
       <section>
-        <Label n="01" name="Fade · entrance" />
-        <Fade duration="slow" distance="dramatic">
+        <Label n="01" name="Reveal · entrance" />
+        <Reveal trigger="mount" duration="slow" distance="dramatic">
           <p className="text-3xl font-medium tracking-tight">One switch re-feels everything.</p>
-        </Fade>
+        </Reveal>
       </section>
 
       {/* 2 — staggered cascade */}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { presets, presetNames, resolveTokens, defaultTokens } from './presets';
 import { motionVars } from './css-vars';
-import { resolveEntrance } from '../hooks/use-entrance';
+import { resolveReveal } from '../hooks/use-reveal';
 import type { MotionTokens } from './tokens.schema';
 
 describe('motion presets', () => {
@@ -60,27 +60,35 @@ describe('motionVars (CSS variables)', () => {
   });
 });
 
-describe('resolveEntrance (token + reduced-motion resolution)', () => {
+describe('resolveReveal (token + reduced-motion resolution)', () => {
   const tokens: MotionTokens = presets.expressive;
 
   it('switching preset changes the resolved transition with zero option changes', () => {
-    const calmT = resolveEntrance(presets.calm, false).transition;
-    const expressiveT = resolveEntrance(presets.expressive, false).transition;
+    const calmT = resolveReveal(presets.calm, false).transition;
+    const expressiveT = resolveReveal(presets.expressive, false).transition;
     expect(calmT.duration).not.toBe(expressiveT.duration);
   });
 
-  it('applies travel offset by direction in normal mode', () => {
-    const up = resolveEntrance(tokens, false, { from: 'up', distance: 'dramatic' });
+  it('slide applies travel offset by direction in normal mode', () => {
+    const up = resolveReveal(tokens, false, { from: 'up', distance: 'dramatic' });
     expect(up.initial).toMatchObject({ opacity: 0, y: tokens.distance.dramatic });
-    const left = resolveEntrance(tokens, false, { from: 'left' });
+    const left = resolveReveal(tokens, false, { from: 'left' });
     expect(left.initial).toMatchObject({ x: tokens.distance.base });
   });
 
-  it('collapses to an opacity-only fade under reduced motion', () => {
-    const r = resolveEntrance(tokens, true, { from: 'up', distance: 'dramatic' });
-    expect(r.initial).toEqual({ opacity: 0 });
-    expect(r.animate).toEqual({ opacity: 1 });
-    expect(r.initial).not.toHaveProperty('y');
-    expect(r.initial).not.toHaveProperty('x');
+  it('scale starts below 1 and ends at 1', () => {
+    const r = resolveReveal(tokens, false, { variant: 'scale', distance: 'dramatic' });
+    expect((r.initial as { scale: number }).scale).toBeLessThan(1);
+    expect(r.animate).toMatchObject({ scale: 1 });
+  });
+
+  it('every variant collapses to an opacity-only fade under reduced motion', () => {
+    for (const variant of ['fade', 'slide', 'scale'] as const) {
+      const r = resolveReveal(tokens, true, { variant, from: 'up', distance: 'dramatic' });
+      expect(r.initial).toEqual({ opacity: 0 });
+      expect(r.animate).toEqual({ opacity: 1 });
+      expect(r.initial).not.toHaveProperty('y');
+      expect(r.initial).not.toHaveProperty('scale');
+    }
   });
 });

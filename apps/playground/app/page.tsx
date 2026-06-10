@@ -2,15 +2,12 @@
 
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
+import Link from 'next/link';
 import { MotionProvider, presetNames, resolveTokens } from '@umbra/motion';
 import type { PresetName } from '@umbra/motion';
 import { EasingCurve } from './_components/EasingCurve';
 import { Stage } from './_components/Stage';
-
-const META: Record<PresetName, { accent: string; tagline: string }> = {
-  calm: { accent: '#5b6b8c', tagline: 'Composed. Unhurried. Premium.' },
-  expressive: { accent: '#e0457b', tagline: 'Playful. Bouncy. Alive.' },
-};
+import { META } from './_components/preset-meta';
 
 export default function Home() {
   const [preset, setPreset] = useState<PresetName>('calm');
@@ -26,6 +23,15 @@ export default function Home() {
       className="mx-auto min-h-dvh w-full max-w-5xl px-6 py-10 md:px-10"
       style={{ '--accent': accent } as CSSProperties}
     >
+      <nav className="mb-8 flex justify-end">
+        <Link
+          href="/components"
+          className="font-mono text-xs uppercase tracking-widest text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-ink)]"
+        >
+          components →
+        </Link>
+      </nav>
+
       {/* Header */}
       <header className="mb-12 flex flex-col gap-6 border-b border-[color:var(--color-line)] pb-8 md:flex-row md:items-end md:justify-between">
         <div>

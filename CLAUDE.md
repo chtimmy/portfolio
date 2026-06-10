@@ -18,6 +18,8 @@ apps/portfolio     Next.js — the portfolio site, built in parallel (port 3001)
 
 The apps consume the toolkit **from source**: `@umbra/motion`'s `exports` point at `src/index.ts`, and each app sets `transpilePackages: ['@umbra/motion']` in `next.config.ts`. That's what gives cross-workspace hot reload — edit `packages/toolkit/src` and both apps update live. The Vite `dist/` build exists only for external distribution (npm / the Phase 3 shadcn-style registry).
 
+**Components (9, in `packages/toolkit/src/components`):** `Reveal`, `TextReveal`, `Stagger`, `AnimatedNumber` (workhorses) + `Marquee`, `Parallax`, `ImageReveal`, `TiltCard`, `Magnetic` (showpieces). Entrance components default to `trigger="inView"`; pass `trigger="mount"` to animate immediately. All are demoed at the `/components` route in the playground. Parked component ideas live in `BACKLOG.md`.
+
 ## Commands
 
 pnpm is installed user-local at `~/Library/pnpm/bin` (the installer couldn't write `~/.zshrc`). If `pnpm` isn't on your PATH, add `export PATH="$HOME/Library/pnpm/bin:$PATH"` to your shell profile.
