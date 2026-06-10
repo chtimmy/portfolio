@@ -30,7 +30,9 @@ The apps consume the toolkit **from source**: `@umbra/motion`'s `exports` point 
 - **Navigation:** `SmoothScroll`
 - **Orchestration core:** `Stagger`, `MotionProvider`
 
-Entrance/data components default to `trigger="inView"`; pass `trigger="mount"` to animate immediately. Discrete entrances obey the token rule; continuous/interactive components (Marquee, Parallax, the backgrounds, Tilt/Magnetic) take a dimensionless `speed`/`strength` prop and use spring tokens for smoothing. All are demoed at the `/components` route, grouped by category. When you add a component, register it in `catalog.ts`. Unbuilt catalog ideas live in `BACKLOG.md` (by category).
+Entrance/data components default to `trigger="inView"`; pass `trigger="mount"` to animate immediately. Discrete entrances obey the token rule; continuous/interactive components (Marquee, Parallax, the backgrounds, Tilt/Magnetic) take a dimensionless `speed`/`strength` prop and use spring tokens for smoothing. When you add a component, register it in `catalog.ts`. Unbuilt catalog ideas live in `BACKLOG.md` (by category).
+
+**Playground (Phase 3a):** `/components` is a category-grouped index linking to a page per component at `/components/[name]` (SSG via `generateStaticParams` over `catalog`). Each detail page has a live demo + prop knobs + a **token control panel** + generated usage code. The demos live in one place — `apps/playground/app/components/_registry/` (`{ controls, render, code }` per component) — used by both the index previews and the detail pages; add a component → add a registry entry. `MotionProvider` takes an optional `tokens` override (used by the token panel; normal apps just pass `preset`). The registry/`npx shadcn add` distribution is **Phase 3b**, after the component edit pass.
 
 ## Commands
 

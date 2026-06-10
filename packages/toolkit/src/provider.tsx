@@ -29,6 +29,11 @@ export interface MotionProviderProps {
    * (the right default); set explicitly to demo or test the reduced experience.
    */
   reducedMotion?: boolean;
+  /**
+   * Override the resolved tokens directly, ignoring `preset`. Mainly for tooling (e.g. a live token
+   * control panel) that tweaks individual values; normal apps just set `preset`.
+   */
+  tokens?: MotionTokens;
   /** Render a wrapping element carrying the token CSS variables. Default `'div'`; `false` to skip. */
   as?: 'div' | 'section' | 'main' | 'article' | false;
   className?: string;
@@ -44,13 +49,14 @@ export function MotionProvider({
   children,
   preset = defaultPresetName,
   reducedMotion,
+  tokens: tokensOverride,
   as = 'div',
   className,
   style,
 }: MotionProviderProps) {
   const systemReduced = useSystemReducedMotion();
   const resolvedReduced = reducedMotion ?? systemReduced ?? false;
-  const tokens = resolveTokens(preset);
+  const tokens = tokensOverride ?? resolveTokens(preset);
 
   const value = useMemo<MotionContextValue>(
     () => ({ preset, tokens, reducedMotion: resolvedReduced }),

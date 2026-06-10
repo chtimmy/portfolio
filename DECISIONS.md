@@ -3,6 +3,25 @@
 Running record of resolved decisions during the Umbra build. Newest first. See
 `motion-toolkit-build-plan.md` for the phased plan this implements.
 
+## 2026-06-10 — Phase 3a: per-component playground (evaluation surface)
+
+- **Phase 3 split into 3a → edit pass → 3b.** 3a = playground polish (per-component pages so each
+  component can be evaluated); then Timmy reviews and we edit component source; 3b (later) = the
+  registry + docs + deploy ("pack & deliver"). Rationale: the registry packages final component
+  source, so it must come *after* edits — build it first and you re-sync after every change.
+- **Per-component pages at `/components/[name]`** (SSG via `generateStaticParams` over `catalog`;
+  `dynamicParams = false` → unknown names 404). Each page: big isolated live demo + live **prop
+  knobs** + **token control panel** + generated usage code (copy) + prop reference. The index
+  `/components` is now a category-grouped overview that links to each page.
+- **Demo registry (`app/components/_registry/`) is the single source of demos** — per component:
+  `{ controls, render(values), code(values) }`. The index previews and the detail pages both render
+  from it (no more duplicated `demoFor`).
+- **`MotionProvider` gained an optional `tokens` override** (toolkit) so the token panel can feed
+  edited tokens live; normal apps still just pass `preset`. Backward compatible.
+- **Index cards use a stretched-link pattern** (the `<Link>` is an absolutely-positioned sibling of
+  the preview, not its parent) — required because previews contain `<button>`/`<a>`, which are
+  invalid nested inside an anchor and caused a hydration mismatch.
+
 ## 2026-06-10 — Component taxonomy + expansion to 19
 
 - **Adopted the category taxonomy** (`plan-update-component-taxonomy.md`, applied to the build
