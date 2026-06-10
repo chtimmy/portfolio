@@ -3,6 +3,27 @@
 Running record of resolved decisions during the Umbra build. Newest first. See
 `motion-toolkit-build-plan.md` for the phased plan this implements.
 
+## 2026-06-10 — Component taxonomy + expansion to 19
+
+- **Adopted the category taxonomy** (`plan-update-component-taxonomy.md`, applied to the build
+  plan). The library is organized by the anatomy of a page: Entrance · Text · Scroll-driven · Hover
+  & cursor · Background & ambient · Data · Continuous & layout · Navigation (+ Orchestration core).
+  Open Decision #3 now reads **2–4 per category** (Timmy's call; the plan's "max 2" was too few).
+- **`catalog.ts` is the source of truth** for which components exist, their category, and a
+  one-line summary. The playground gallery renders from it (grouped by category); Phase 3 registry
+  + docs will too.
+- **+10 components → 19 total.** Added `RotatingText` (text), `ScrollProgress` + `StickyScene`
+  (scroll), `AnimatedGradient` + `GrainOverlay` + `DotGrid` + `BeamGrid` (background — the
+  previously-empty category, now at the cap of 4), `StatBar` (data), `Accordion` (continuous),
+  `SmoothScroll` (navigation). Coverage: 8 categories, all within 2–4 except Navigation at 1
+  (`PageTransition` deferred). Background was emptied of priority elsewhere into here at Timmy's
+  request.
+- **Implementation notes:** `DotGrid` is canvas + rAF (static, no loop, under reduced motion);
+  `AnimatedGradient`/`BeamGrid` use Motion loops, `GrainOverlay` a stepped CSS keyframe (in
+  `styles.css`); `SmoothScroll` eases in-page anchors (no momentum-scroll lib — that's a backlog
+  idea); `StickyScene` pins + translates on scroll, degrading to a native scroll row when reduced.
+- Remaining catalog items stay in `BACKLOG.md`, labeled by category.
+
 ## 2026-06-10 — Phase 2 (Component primitives)
 
 - **9 components shipped.** Batch 1: `Reveal`, `TextReveal`, `Stagger`, `AnimatedNumber`. Batch 2

@@ -32,7 +32,7 @@ The toolkit is then used **by hand** to build the personal portfolio website. Th
 
 1. **Token preset names and count** — e.g. three personalities like `calm`, `snappy`, `expressive`. Pick names that read well in code.
 2. **Monorepo vs. single repo** — pnpm workspace with `packages/toolkit`, `apps/playground`, `apps/portfolio`, vs. separate repos. Default recommendation: one pnpm monorepo (single GitHub link to share, easier dogfooding).
-3. **Component shortlist for v1** — pick 8–10 from the menu in Phase 2; cut anything that doesn't earn its place.
+3. **Component shortlist for v1** — pick from the catalog in Phase 2, covering at least 5 categories, **2–4 per category** (≈10–16 total). Cut anything that doesn't earn its place; everything unbuilt goes to `BACKLOG.md` with its category label.
 
 ---
 
@@ -69,25 +69,66 @@ This is what makes it a *system* rather than a folder of components.
 
 ## Phase 2 — Component primitives
 
-Build in two batches. Every component: token-driven (no hardcoded durations/easings), typed props, reduced-motion behavior, and a usage example.
+Every component: token-driven (no hardcoded durations/easings), typed props, reduced-motion behavior, and a usage example.
 
-**Batch 1 — the workhorses (build all):**
-- `Reveal` — scroll-triggered entrance (fade/slide/scale variants)
-- `TextReveal` — split text animating by character/word/line with stagger
-- `Stagger` — orchestration wrapper that cascades children
-- `AnimatedNumber` — counting/odometer effect
+The catalog is organized by **category** — the anatomy of a real website (things appear → text speaks → scroll moves → pointer plays → background breathes → stats land → things loop → states transition). Categories exist so the library reads as a coherent system and so v1 covers the anatomy, not so every category gets built. Pick **2–4 per category**, covering at least 5 categories. Asterisks (*) mark the recommended v1 pick(s).
 
-**Batch 2 — the showpieces (pick 4–6):**
-- `Marquee` — infinite scroll strip
-- `Parallax` — scroll-linked depth
-- `Magnetic` — cursor-attracted buttons/elements
-- `TiltCard` — pointer-tracked 3D tilt
-- `PageTransition` — route-change choreography
-- `Spotlight` / cursor-follow effect
+### 1. Entrance & reveal — *how elements appear*
+The workhorses. Used dozens of times per page.
+- `Reveal`* — scroll-triggered fade/slide/scale entrance (THE foundational component, build first)
+- `ImageReveal`* — clip-path/mask wipe for images and media
+- `BlurReveal` — content sharpens into focus
+
+### 2. Text animation — *how words speak*
+Highest visual impact per effort; headlines are where motion personality shows most.
+- `TextReveal`* — split by character/word/line, staggered entrance
+- `RotatingText` — a word in a sentence cycles ("I build websites / systems / tools")
+- `TextScramble` — characters decode into place (techy feel)
+- `GradientText` / shimmer — animated color sweep across text
+
+### 3. Scroll-driven — *animation tied to scroll position*
+Track scroll continuously rather than triggering once. Makes a site feel "expensive."
+- `Parallax`* — layers move at different speeds for depth
+- `ScrollProgress` — reading-progress indicator
+- `StickyScene` — element pins while content scrolls past (Apple-style)
+- `ScrollVelocity` — elements skew/react to scroll speed
+
+### 4. Hover & cursor — *how the site responds to the pointer*
+Desktop-only delight (degrade gracefully on touch). Small components, big perceived craft.
+- `Magnetic`* / `TiltCard`* — cursor-attracted elements / 3D pointer-tracked tilt
+- `Spotlight` — glow that follows the cursor across cards
+- `CursorFollower` — custom cursor element
+- `HoverImageTrail` — images trail behind cursor over a link list
+
+### 5. Background & ambient — *how the page breathes*
+One good ambient background does enormous aesthetic lifting for a hero.
+- `AnimatedGradient`* — slowly shifting mesh/aurora gradient
+- `Particles` / `DotGrid` — interactive dot field
+- `GrainOverlay` — animated noise texture (subtle, filmic)
+- `BeamGrid` — lines/beams tracing a grid
+
+### 6. Data & numbers — *how stats land*
+Small category, but portfolio/business sites always need it.
+- `AnimatedNumber`* — count-up/odometer triggered on view
+- `StatBar` — animated progress/percentage bars
+
+### 7. Continuous & layout motion — *elements that move on their own or reflow*
+- `Marquee`* — infinite scrolling strip (logos, tech-stack lists)
 - `Accordion` — spring-physics expand/collapse
-- `ImageReveal` — clip-path/mask entrance for media
+- `AnimatedTabs` — sliding active-indicator tabs
+- `InfiniteCarousel` — auto-advancing card loop
 
-**Definition of Done:** 8–10 components, each demoed on a playground page, each behaving correctly with reduced motion on, each working under every preset. No component contains a raw duration or easing value.
+### 8. Navigation & transitions — *moving between states and pages*
+Most complex category; fine to defer except where marked.
+- `PageTransition` — route-change choreography (consider for v1 — the portfolio will want it)
+- `AnimatedMenu` — staggered mobile/overlay nav reveal
+- `SmoothScroll` — eased anchor scrolling wrapper
+
+### Orchestration utilities (toolkit core, not visual components)
+- `Stagger`* — wrapper that cascades any children (powers half the categories above)
+- `MotionProvider` — token/preset context (specified in Phase 1)
+
+**Definition of Done:** the chosen catalog (≈10–16 components across ≥5 categories), each demoed on a playground page grouped by category, each behaving correctly with reduced motion on, each working under every preset. No component contains a raw duration or easing value.
 
 ---
 

@@ -18,7 +18,19 @@ apps/portfolio     Next.js — the portfolio site, built in parallel (port 3001)
 
 The apps consume the toolkit **from source**: `@umbra/motion`'s `exports` point at `src/index.ts`, and each app sets `transpilePackages: ['@umbra/motion']` in `next.config.ts`. That's what gives cross-workspace hot reload — edit `packages/toolkit/src` and both apps update live. The Vite `dist/` build exists only for external distribution (npm / the Phase 3 shadcn-style registry).
 
-**Components (9, in `packages/toolkit/src/components`):** `Reveal`, `TextReveal`, `Stagger`, `AnimatedNumber` (workhorses) + `Marquee`, `Parallax`, `ImageReveal`, `TiltCard`, `Magnetic` (showpieces). Entrance components default to `trigger="inView"`; pass `trigger="mount"` to animate immediately. All are demoed at the `/components` route in the playground. Parked component ideas live in `BACKLOG.md`.
+**Components (19, in `packages/toolkit/src/components`), organized by category in `catalog.ts`** — the single source of truth for what exists and what each is for (the gallery + future registry/docs render from it):
+
+- **Entrance & reveal:** `Reveal`, `ImageReveal`
+- **Text:** `TextReveal`, `RotatingText`
+- **Scroll-driven:** `Parallax`, `ScrollProgress`, `StickyScene`
+- **Hover & cursor:** `Magnetic`, `TiltCard`
+- **Background & ambient:** `AnimatedGradient`, `GrainOverlay`, `DotGrid`, `BeamGrid`
+- **Data & numbers:** `AnimatedNumber`, `StatBar`
+- **Continuous & layout:** `Marquee`, `Accordion`
+- **Navigation:** `SmoothScroll`
+- **Orchestration core:** `Stagger`, `MotionProvider`
+
+Entrance/data components default to `trigger="inView"`; pass `trigger="mount"` to animate immediately. Discrete entrances obey the token rule; continuous/interactive components (Marquee, Parallax, the backgrounds, Tilt/Magnetic) take a dimensionless `speed`/`strength` prop and use spring tokens for smoothing. All are demoed at the `/components` route, grouped by category. When you add a component, register it in `catalog.ts`. Unbuilt catalog ideas live in `BACKLOG.md` (by category).
 
 ## Commands
 
