@@ -3,6 +3,14 @@
 Running record of resolved decisions during the Umbra build. Newest first. See
 `motion-toolkit-build-plan.md` for the phased plan this implements.
 
+## 2026-06-10 — Dropped the `snappy` preset
+
+- **Two presets, not three: `calm` + `expressive`.** Removed `snappy` (decision below superseded).
+  Two well-differentiated temperaments beat three where one is redundant; the build plan allowed
+  2–3. `PresetName` is now `'calm' | 'expressive'`. Kept the name `expressive` over `bouncy`
+  (it covers more than bounce: overshoot, anticipation, bigger travel). Note: the **spring token**
+  key `snappy` (`gentle`/`snappy`/`bouncy`) is unrelated and stays.
+
 ## 2026-06-10 — Phase 1 (Motion token system)
 
 - **Real preset values, distinct on every axis.** `calm` (slow, pure decelerate, no overshoot),

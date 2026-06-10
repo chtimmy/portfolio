@@ -9,7 +9,6 @@ import { Stage } from './_components/Stage';
 
 const META: Record<PresetName, { accent: string; tagline: string }> = {
   calm: { accent: '#5b6b8c', tagline: 'Composed. Unhurried. Premium.' },
-  snappy: { accent: '#2563eb', tagline: 'Precise. Responsive. Product-grade.' },
   expressive: { accent: '#e0457b', tagline: 'Playful. Bouncy. Alive.' },
 };
 
@@ -35,7 +34,7 @@ export default function Home() {
             umbra · motion language
           </div>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
-            Three temperaments,<br />one system.
+            Two temperaments,<br />one system.
           </h1>
           <p className="mt-2 text-[color:var(--color-muted)]">{tagline}</p>
         </div>

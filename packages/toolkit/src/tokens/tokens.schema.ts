@@ -2,9 +2,9 @@
  * Motion token system — the CONTRACT.
  *
  * This file defines the *shape* of Umbra's animation language: the named scales every
- * component reads from instead of hardcoding raw durations/easings. Concrete values for each
- * preset (`calm` / `snappy` / `expressive`) are filled in during Phase 1; this is types-only so
- * the rest of the system can build against a stable contract.
+ * component reads from instead of hardcoding raw durations/easings. It is types-only; the concrete
+ * values for each preset (`calm` / `expressive`) live in `presets.ts`, so the rest of the system
+ * builds against a stable contract.
  *
  * Rule enforced by this contract: components never write a raw duration or easing — they read a
  * token key (e.g. `duration.base`, `easing.standard`) and the active preset supplies the value.
@@ -17,8 +17,8 @@ export type SpringToken = 'gentle' | 'snappy' | 'bouncy';
 export type StaggerToken = 'tight' | 'base' | 'loose';
 export type DistanceToken = 'subtle' | 'base' | 'dramatic';
 
-/** The three motion personalities a consumer can switch between. */
-export type PresetName = 'calm' | 'snappy' | 'expressive';
+/** The motion personalities a consumer can switch between. */
+export type PresetName = 'calm' | 'expressive';
 
 /** Durations in milliseconds, keyed by the named scale. */
 export type DurationScale = Record<DurationToken, number>;

@@ -5,9 +5,9 @@ import { resolveEntrance } from '../hooks/use-entrance';
 import type { MotionTokens } from './tokens.schema';
 
 describe('motion presets', () => {
-  it('defines all three personalities', () => {
-    expect([...presetNames].sort()).toEqual(['calm', 'expressive', 'snappy']);
-    expect(Object.keys(presets).sort()).toEqual(['calm', 'expressive', 'snappy']);
+  it('defines both personalities', () => {
+    expect([...presetNames].sort()).toEqual(['calm', 'expressive']);
+    expect(Object.keys(presets).sort()).toEqual(['calm', 'expressive']);
   });
 
   it('every preset is a complete token set', () => {
@@ -31,13 +31,12 @@ describe('motion presets', () => {
     }
   });
 
-  it('the three presets actually feel different (distinct on every axis)', () => {
-    const { calm, snappy, expressive } = presets;
-    // snappy is faster than calm; expressive sits between
-    expect(snappy.duration.base).toBeLessThan(expressive.duration.base);
+  it('the two presets actually feel different (distinct on every axis)', () => {
+    const { calm, expressive } = presets;
+    // expressive is quicker than calm and travels farther
     expect(expressive.duration.base).toBeLessThan(calm.duration.base);
-    // snappy springs are stiffer; expressive springs bounce (lower damping)
-    expect(snappy.spring.bouncy.stiffness).toBeGreaterThan(calm.spring.bouncy.stiffness);
+    expect(expressive.distance.base).toBeGreaterThan(calm.distance.base);
+    // expressive springs bounce (lower damping); calm's don't
     expect(expressive.spring.bouncy.damping).toBeLessThan(calm.spring.bouncy.damping);
     // only expressive overshoots (easing control point y > 1)
     expect(expressive.easing.entrance[1]).toBeGreaterThan(1);
@@ -45,7 +44,7 @@ describe('motion presets', () => {
   });
 
   it('resolveTokens returns the matching set', () => {
-    expect(resolveTokens('snappy')).toBe(presets.snappy);
+    expect(resolveTokens('expressive')).toBe(presets.expressive);
     expect(defaultTokens).toBe(presets.calm);
   });
 });
@@ -66,8 +65,8 @@ describe('resolveEntrance (token + reduced-motion resolution)', () => {
 
   it('switching preset changes the resolved transition with zero option changes', () => {
     const calmT = resolveEntrance(presets.calm, false).transition;
-    const snappyT = resolveEntrance(presets.snappy, false).transition;
-    expect(calmT.duration).not.toBe(snappyT.duration);
+    const expressiveT = resolveEntrance(presets.expressive, false).transition;
+    expect(calmT.duration).not.toBe(expressiveT.duration);
   });
 
   it('applies travel offset by direction in normal mode', () => {

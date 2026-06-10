@@ -1,12 +1,11 @@
 import type { MotionPresets, MotionTokens, PresetName } from './tokens.schema';
 
 /**
- * The three motion personalities. Switching the active preset re-feels every component at once —
- * this table is the heart of the system. Each preset is deliberately distinct on *every* axis
+ * The motion personalities. Switching the active preset re-feels every component at once — this
+ * table is the heart of the system. The two presets are deliberately distinct on *every* axis
  * (duration, easing, spring, stagger, distance) so the difference is unmistakable.
  *
  * - calm       — composed, premium, unhurried. Long durations, pure decelerate, no overshoot.
- * - snappy     — precise, product-grade. Short durations, stiff near-critical springs, tight rhythm.
  * - expressive — playful, alive. Back-out overshoot + anticipation, bouncy springs, bigger travel.
  *
  * Durations are ms, distances px, stagger ms-per-child. Easings are cubic-bezier control points;
@@ -30,23 +29,6 @@ const calm: MotionTokens = {
   distance: { subtle: 8, base: 22, dramatic: 52 },
 };
 
-const snappy: MotionTokens = {
-  duration: { instant: 0, fast: 110, base: 200, slow: 320, cinematic: 520 },
-  easing: {
-    standard: [0.2, 0, 0, 1], // quick decelerate
-    entrance: [0.1, 0.9, 0.2, 1],
-    exit: [0.4, 0, 1, 1],
-    emphasized: [0.5, 0, 0.1, 1],
-  },
-  spring: {
-    gentle: { stiffness: 320, damping: 32, mass: 1 },
-    snappy: { stiffness: 500, damping: 34, mass: 1 },
-    bouncy: { stiffness: 650, damping: 26, mass: 1 },
-  },
-  stagger: { tight: 25, base: 50, loose: 90 },
-  distance: { subtle: 6, base: 14, dramatic: 36 },
-};
-
 const expressive: MotionTokens = {
   duration: { instant: 0, fast: 180, base: 360, slow: 600, cinematic: 950 },
   easing: {
@@ -64,10 +46,10 @@ const expressive: MotionTokens = {
   distance: { subtle: 14, base: 36, dramatic: 88 },
 };
 
-export const presets: MotionPresets = { calm, snappy, expressive };
+export const presets: MotionPresets = { calm, expressive };
 
 /** All preset names, in display order (restrained → bold). */
-export const presetNames: PresetName[] = ['calm', 'snappy', 'expressive'];
+export const presetNames: PresetName[] = ['calm', 'expressive'];
 
 /** The default personality when no preset is specified. */
 export const defaultPresetName: PresetName = 'calm';

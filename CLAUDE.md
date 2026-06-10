@@ -37,11 +37,11 @@ pnpm format                       # prettier --write
 
 ## The one rule that defines the system
 
-**Components never hardcode a raw duration, easing, distance, spring, or stagger value.** They read a *token key* from the contract in `packages/toolkit/src/tokens/tokens.schema.ts` (e.g. `duration.base`, `easing.standard`), and the active preset (`calm` / `snappy` / `expressive`) supplies the value. This is what makes Umbra a *system* rather than a folder of animations — switching the preset re-feels every component at once. A component with a literal `0.3` in a transition is a bug.
+**Components never hardcode a raw duration, easing, distance, spring, or stagger value.** They read a *token key* from the contract in `packages/toolkit/src/tokens/tokens.schema.ts` (e.g. `duration.base`, `easing.standard`), and the active preset (`calm` / `expressive`) supplies the value. This is what makes Umbra a *system* rather than a folder of animations — switching the preset re-feels every component at once. A component with a literal `0.3` in a transition is a bug.
 
-Every component also: has typed props, respects `prefers-reduced-motion` (one shared hook, lands Phase 1 — reduced mode collapses transforms to opacity-only fades), and ships a usage example.
+Every component also: has typed props, respects `prefers-reduced-motion` (via the shared `useReducedMotion` — reduced mode collapses transforms to opacity-only fades), and ships a usage example.
 
-`packages/toolkit/src/tokens/presets.ts` currently holds **placeholder** values so Phase 0 compiles; Phase 1 replaces them with deliberately-tuned ones and adds `MotionProvider`.
+Token consumption is centralized: read tokens through `useMotionTokens()` / the `useEntrance` helper (and its pure `resolveEntrance`), wrapped by a `MotionProvider`. Preset values live in `packages/toolkit/src/tokens/presets.ts`.
 
 ## Stack
 
@@ -61,4 +61,4 @@ Durable, user-facing project knowledge lives in Timmy's Obsidian vault, not in t
 
 ## Skills
 
-Lean on the **frontend-design** skill for design-craft work — Phase 1 (defining the *feel* of the three presets) and especially Phase 5 (portfolio art direction: palette, type, the one signature motion moment). It's not needed for scaffolding or wiring.
+Lean on the **frontend-design** skill for design-craft work — Phase 1 (defining the *feel* of the two presets) and especially Phase 5 (portfolio art direction: palette, type, the one signature motion moment). It's not needed for scaffolding or wiring.
