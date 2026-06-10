@@ -1,0 +1,10 @@
+/**
+ * Umbra toolkit styles.
+ *
+ * Phase 1 will expose the motion tokens here as CSS variables via Tailwind v4's `@theme`, so the
+ * animation language works with or without Tailwind. For Phase 0 this is a placeholder that simply
+ * declares the namespace; apps import it to confirm the CSS pipeline flows across the workspace.
+ */
+@theme {
+  /* Phase 1: --ease-standard, --duration-base, etc. land here. */
+}

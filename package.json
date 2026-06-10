@@ -1,0 +1,28 @@
+{
+  "name": "umbra-design",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Umbra — a motion component toolkit (token-driven React + Motion) and the portfolio built with it.",
+  "packageManager": "pnpm@11.5.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel -r --filter=./apps/* dev",
+    "dev:playground": "pnpm --filter @umbra/playground dev",
+    "dev:portfolio": "pnpm --filter @umbra/portfolio dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}

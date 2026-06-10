@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+@import '@umbra/motion/styles.css';
+
+/* Pick up Tailwind classes used inside the toolkit (it's consumed from source). */
+@source '../../../packages/toolkit/src';
