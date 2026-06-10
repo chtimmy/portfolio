@@ -3,3 +3,28 @@
 
 /* Pick up Tailwind classes used inside the toolkit (it's consumed from source). */
 @source '../../../packages/toolkit/src';
+
+@theme {
+  --font-sans: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, 'SF Mono', monospace;
+
+  /* Cool paper + ink — deliberately not the cream/serif or near-black/acid defaults. */
+  --color-canvas: #f4f5f7;
+  --color-ink: #14161b;
+  --color-muted: #767b86;
+  --color-line: #e3e5ea;
+}
+
+html {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+body {
+  min-height: 100dvh;
+}
+
+/* The per-preset accent is set on the stage wrapper as --accent; default for safety. */
+:root {
+  --accent: #5b6b8c;
+}

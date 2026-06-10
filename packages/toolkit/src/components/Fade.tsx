@@ -2,8 +2,8 @@
 
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
-import type { DurationToken, EasingToken } from '../tokens/tokens.schema';
-import { defaultPreset } from '../tokens/presets';
+import type { DistanceToken, DurationToken, EasingToken } from '../tokens/tokens.schema';
+import { useEntrance } from '../hooks/use-entrance';
 
 export interface FadeProps {
   children: ReactNode;
@@ -11,28 +11,23 @@ export interface FadeProps {
   duration?: DurationToken;
   /** Easing token key — resolved against the active preset. */
   easing?: EasingToken;
+  /** Travel distance token key. */
+  distance?: DistanceToken;
+  /** Direction the element enters from. Default enters from below. */
+  from?: 'up' | 'down' | 'left' | 'right';
   className?: string;
 }
 
 /**
- * Dummy token-driven component for Phase 0.
- *
- * Its only job is to prove the workspace boundary: it lives in the toolkit, is imported by both
- * apps, and reads from the token contract rather than hardcoding durations/easings. Phase 2
- * replaces it with the real `Reveal` family; until then it demonstrates the pattern every
- * component must follow.
+ * Entrance fade — fades and slides content into place using the active preset's tokens. Reads
+ * everything through `useEntrance`, so it carries no raw values and automatically collapses to an
+ * opacity-only fade under reduced motion. The pattern every Phase 2 component follows.
  */
-export function Fade({ children, duration = 'base', easing = 'standard', className }: FadeProps) {
+export function Fade({ children, duration, easing, distance, from, className }: FadeProps) {
+  const entrance = useEntrance({ duration, easing, distance, from });
+
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: defaultPreset.distance.subtle }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: defaultPreset.duration[duration] / 1000,
-        ease: defaultPreset.easing[easing],
-      }}
-    >
+    <motion.div className={className} {...entrance}>
       {children}
     </motion.div>
   );

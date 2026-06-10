@@ -3,6 +3,35 @@
 Running record of resolved decisions during the Umbra build. Newest first. See
 `motion-toolkit-build-plan.md` for the phased plan this implements.
 
+## 2026-06-10 — Phase 1 (Motion token system)
+
+- **Real preset values, distinct on every axis.** `calm` (slow, pure decelerate, no overshoot),
+  `snappy` (fast, stiff near-critical springs, tight rhythm), `expressive` (back-out overshoot +
+  anticipation via bezier points outside [0,1], bouncy low-damping springs, bigger travel). Values
+  live in `tokens/presets.ts`; rationale in code comments.
+- **`MotionProvider` is the single injection point.** Provides resolved tokens via React context
+  *and* mirrors them as CSS variables (`--umbra-duration-*`, `--umbra-ease-*`, `--umbra-stagger-*`,
+  `--umbra-distance-*`) on a wrapping element, so the language works with or without Motion. Springs
+  are deliberately not emitted as CSS vars (not a CSS concept).
+- **Reduced motion: one source, with an override.** `useReducedMotion()` reads context, which is
+  the provider's `reducedMotion` prop when set, else the OS `prefers-reduced-motion`. The override
+  exists so the demo/tests can exercise reduced mode without OS settings. Reduced mode collapses
+  entrances to opacity-only fades (no transforms).
+- **Token consumption is centralized in `resolveEntrance` (pure) + `useEntrance` (hook).** The "no
+  raw values" rule and the reduced-motion fallback live in one place; `Fade` is now a thin consumer.
+  `resolveEntrance` is side-effect-free so the fallback logic is unit-tested without a DOM.
+- **Switching preset replays via remount.** The playground keys `MotionProvider` on
+  `preset-reduced-replay`, so changing any of them re-triggers the entrance animations — the
+  "toggle re-feels everything" proof.
+- **Playground design (frontend-design skill):** cool paper/ink palette (not the cream-serif or
+  near-black-acid defaults); Space Grotesk display + JetBrains Mono for token data ("the tokens are
+  data"); **per-preset accent color** so the personality shows in color too; signature element is a
+  live **easing-curve SVG** that bends/overshoots as you switch. Fonts via `next/font` in the app,
+  not the toolkit.
+- **Apps that use Motion directly declare it.** Added `motion` to the playground's deps (the Stage
+  uses raw `motion.*` for the stagger/spring demos); the toolkit keeps `motion` as a dependency and
+  `react`/`react-dom` as peers.
+
 ## 2026-06-10 — Phase 0 (Foundations)
 
 - **Monorepo, pnpm workspaces.** Single repo: `packages/toolkit` + `apps/playground` +
