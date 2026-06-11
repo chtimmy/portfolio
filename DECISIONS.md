@@ -3,6 +3,28 @@
 Running record of resolved decisions during the Umbra build. Newest first. See
 `motion-toolkit-build-plan.md` for the phased plan this implements.
 
+## 2026-06-10 — Phase 3a refinement: legible playground
+
+Round 2 on the playground after review (controls felt inert; tokens confusing; previews static):
+- **One-shot demos loop.** `LoopDemo` remounts entrance demos on an interval (and on prop/token
+  change), so duration/easing differences are actually visible — and the token edits below now show.
+- **Token editing folded into props (no standalone panel).** Timmy's call: tokens are just the
+  values behind prop selections, and a global panel overwhelmed. A token-select prop (duration,
+  easing, distance, stagger) now carries a `token` tag; `PropControls` renders a **collapsed "value
+  of …" expander** that edits the selected key's value in a token override fed to the demo's
+  `MotionProvider tokens={…}`. Springs stay internal (no prop → not editable here). Deleted
+  `TokenPanel.tsx`.
+- **Demo modes + a per-component toggle.** Registry entries declare `modes: ('loop'|'scroll'|'live')`.
+  Detail pages show a Loop/Scroll toggle for inView components; scroll-driven components demo inside
+  a real **`ScrollBox`** you scroll.
+- **Scroll-container props on the toolkit.** `Parallax` gained `root?` and `ScrollProgress` gained
+  `container?` (renders `absolute` instead of `fixed` when set) so they can track a scrolling panel
+  — genuinely useful API, and what makes the contained scroll demos work. `StickyScene` left as a
+  page-scroll component (its `vh` height doesn't fit a container cleanly); demoed as a draggable row.
+- **Interactive index previews.** Dropped the stretched-link/`pointer-events-none`; the component
+  **name** is the link and previews are live (hover, scroll, loop). inView components rely on
+  clip-aware IntersectionObserver to fire inside a scroll box (no viewport-root needed).
+
 ## 2026-06-10 — Phase 3a: per-component playground (evaluation surface)
 
 - **Phase 3 split into 3a → edit pass → 3b.** 3a = playground polish (per-component pages so each

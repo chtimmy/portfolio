@@ -8,6 +8,7 @@ import type { PresetName } from '@umbra/motion';
 import { Controls } from '../_components/Controls';
 import { META } from '../_components/preset-meta';
 import { defaultValues } from '../_components/PropControls';
+import { LoopDemo } from '../_components/LoopDemo';
 import { registry } from './_registry';
 
 const componentCount = catalog.flatMap((c) => c.components).filter((c) => c.name !== 'MotionProvider').length;
@@ -35,8 +36,8 @@ export default function ComponentsIndex() {
         </nav>
         <h1 className="mb-4 text-3xl font-semibold tracking-tight md:text-4xl">Component gallery</h1>
         <p className="mb-6 max-w-prose text-[color:var(--color-muted)]">
-          Organized by what each part of a page does. Open any component for a live demo with prop
-          knobs and a token panel. Switch preset or reduced motion to see them all respond.
+          Organized by what each part of a page does. Previews are interactive — hover, scroll, play.
+          Open any component for prop knobs and per-prop value tweaks.
         </p>
         <Controls
           preset={preset}
@@ -53,37 +54,45 @@ export default function ComponentsIndex() {
         {catalog.map((cat, i) => (
           <section id={cat.id} key={cat.id} className="mb-14 scroll-mt-6">
             <div className="mb-5 flex items-baseline gap-3">
-              <span className="font-mono text-sm text-[color:var(--accent)]">
-                {String(i + 1).padStart(2, '0')}
-              </span>
+              <span className="font-mono text-sm text-[color:var(--accent)]">{String(i + 1).padStart(2, '0')}</span>
               <h2 className="text-xl font-semibold tracking-tight">{cat.title}</h2>
               <span className="text-sm text-[color:var(--color-muted)]">{cat.tagline}</span>
             </div>
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid items-stretch gap-5 sm:grid-cols-2">
               {cat.components.map((c) => {
                 const entry = registry[c.name];
+                const mode0 = entry?.modes[0] ?? 'live';
+                const preview = entry
+                  ? mode0 === 'loop'
+                    ? (
+                        <LoopDemo deps={c.name}>
+                          {entry.render(defaultValues(entry.controls), { accent, mode: 'loop' })}
+                        </LoopDemo>
+                      )
+                    : entry.render(defaultValues(entry.controls), { accent, mode: mode0 })
+                  : null;
                 return (
                   <div
                     key={c.name}
-                    className="group relative flex flex-col rounded-xl border border-[color:var(--color-line)] bg-white/50 p-5 transition-colors hover:border-[color:var(--accent)]"
+                    className="flex flex-col rounded-xl border border-[color:var(--color-line)] bg-white/50 p-5 transition-colors hover:border-[color:var(--accent)]"
                   >
-                    {/* stretched link — sibling of the demo, so previews can contain buttons/anchors */}
-                    <Link
-                      href={`/components/${c.name}`}
-                      aria-label={`Open ${c.name}`}
-                      className="absolute inset-0 z-20 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2"
-                      style={{ outlineColor: accent }}
-                    />
                     <div className="mb-1 flex items-baseline justify-between gap-3">
-                      <h3 className="font-mono text-sm">{c.name}</h3>
-                      <span className="font-mono text-xs text-[color:var(--color-muted)] transition-transform group-hover:translate-x-0.5">
+                      <Link
+                        href={`/components/${c.name}`}
+                        className="font-mono text-sm transition-colors hover:text-[color:var(--accent)]"
+                      >
+                        {c.name}
+                      </Link>
+                      <Link
+                        href={`/components/${c.name}`}
+                        aria-label={`Open ${c.name}`}
+                        className="font-mono text-xs text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--accent)]"
+                      >
                         →
-                      </span>
+                      </Link>
                     </div>
                     <p className="mb-4 text-xs text-[color:var(--color-muted)]">{c.summary}</p>
-                    <div className="pointer-events-none flex min-h-[120px] flex-1 items-center justify-center overflow-hidden">
-                      {entry?.render(defaultValues(entry.controls), { accent })}
-                    </div>
+                    <div className="flex flex-1 items-center justify-center overflow-hidden">{preview}</div>
                   </div>
                 );
               })}

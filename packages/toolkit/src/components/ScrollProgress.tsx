@@ -10,8 +10,11 @@ export interface ScrollProgressProps {
   color?: string;
   /** Where to pin the bar. Default `'top'`. */
   position?: 'top' | 'bottom';
-  /** Track a specific scroll container instead of the page. */
-  target?: React.RefObject<HTMLElement | null>;
+  /**
+   * Track this scrollable element instead of the page. When set, the bar pins `absolute` to the
+   * element (which should be `position: relative`) rather than `fixed` to the viewport.
+   */
+  container?: React.RefObject<HTMLElement | null>;
   className?: string;
 }
 
@@ -24,12 +27,12 @@ export function ScrollProgress({
   thickness = 3,
   color = 'currentColor',
   position = 'top',
-  target,
+  container,
   className,
 }: ScrollProgressProps) {
   const tokens = useMotionTokens();
   const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll(target ? { target } : undefined);
+  const { scrollYProgress } = useScroll(container ? { container } : undefined);
   const smooth = useSpring(scrollYProgress, tokens.spring.gentle);
   const scaleX = reduced ? scrollYProgress : smooth;
 
@@ -38,7 +41,7 @@ export function ScrollProgress({
       aria-hidden
       className={className}
       style={{
-        position: 'fixed',
+        position: container ? 'absolute' : 'fixed',
         left: 0,
         right: 0,
         [position]: 0,

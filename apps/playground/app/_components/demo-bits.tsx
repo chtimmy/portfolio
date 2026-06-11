@@ -1,4 +1,7 @@
-import type { ReactNode } from 'react';
+'use client';
+
+import { useRef } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 export const SKILLS = ['Motion', 'React', 'TypeScript', 'Tailwind', 'Next.js', 'Design Systems', 'Vite'];
 
@@ -38,6 +41,37 @@ export function Centered({ children, dark }: { children: ReactNode; dark?: boole
       style={{ color: dark ? 'rgba(20,22,27,0.5)' : 'rgba(255,255,255,0.85)' }}
     >
       {children}
+    </div>
+  );
+}
+
+/**
+ * A scrollable box for demoing scroll-driven components. Hands its scroll element back via the
+ * `children` (and optional `pinned`) render props so components can receive it as their
+ * `root`/`container`. Tall spacers create scroll room; a sticky hint shows there's something to do.
+ */
+export function ScrollBox({
+  children,
+  pinned,
+}: {
+  children: (ref: RefObject<HTMLDivElement | null>) => ReactNode;
+  pinned?: (ref: RefObject<HTMLDivElement | null>) => ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <div className="relative w-full">
+      {pinned?.(ref)}
+      <div
+        ref={ref}
+        className="relative h-80 w-full overflow-y-auto rounded-lg border border-[color:var(--color-line)] bg-[color:var(--color-canvas)]"
+      >
+        <div className="pointer-events-none sticky top-2 z-10 text-center font-mono text-[11px] uppercase tracking-widest text-[color:var(--color-muted)]">
+          ↓ scroll ↓
+        </div>
+        <div style={{ height: '78%' }} />
+        <div className="flex justify-center px-6 py-8">{children(ref)}</div>
+        <div style={{ height: '72%' }} />
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'motion/react';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import type { DistanceToken } from '../tokens/tokens.schema';
 import { useMotionTokens, useReducedMotion } from '../provider';
 
@@ -12,6 +12,8 @@ export interface ParallaxProps {
   speed?: number;
   /** Travel range token (the max offset at the extremes). Default `'dramatic'`. */
   range?: DistanceToken;
+  /** Track scroll within this element instead of the window (e.g. a scrollable panel). */
+  root?: RefObject<HTMLElement | null>;
   className?: string;
 }
 
@@ -20,13 +22,14 @@ export interface ParallaxProps {
  * viewport to a vertical offset (scaled by `speed`), spring-smoothed on the active preset's gentle
  * spring. Renders perfectly still under reduced motion.
  */
-export function Parallax({ children, speed = 0.3, range = 'dramatic', className }: ParallaxProps) {
+export function Parallax({ children, speed = 0.3, range = 'dramatic', root, className }: ParallaxProps) {
   const tokens = useMotionTokens();
   const reduced = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
     target: ref,
+    ...(root ? { container: root } : {}),
     offset: ['start end', 'end start'],
   });
 
