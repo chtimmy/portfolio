@@ -47,7 +47,11 @@ export function AnimatedNumber({
   const text = useTransform(count, (n) => format(n));
 
   useEffect(() => {
-    if (!active) return;
+    // Out of view (only possible when once=false): reset so it re-counts on scroll back in.
+    if (!active) {
+      count.set(from);
+      return;
+    }
     if (reduced) {
       count.set(value);
       return;
@@ -57,7 +61,7 @@ export function AnimatedNumber({
       ease: [...tokens.easing[easing]],
     });
     return () => controls.stop();
-  }, [active, reduced, value, count, tokens, duration, easing]);
+  }, [active, reduced, value, from, count, tokens, duration, easing]);
 
   return (
     <motion.span ref={ref} className={className}>

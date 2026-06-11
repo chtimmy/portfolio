@@ -13,7 +13,7 @@ import type { MotionPresets, MotionTokens, PresetName } from './tokens.schema';
  */
 
 const calm: MotionTokens = {
-  duration: { instant: 0, fast: 240, base: 440, slow: 680, cinematic: 1100 },
+  duration: { instant: 0, fast: 160, base: 400, slow: 850, cinematic: 1400 },
   easing: {
     standard: [0.4, 0, 0.2, 1],
     entrance: [0.16, 1, 0.3, 1], // smooth expo-out, decelerate into place
@@ -30,7 +30,7 @@ const calm: MotionTokens = {
 };
 
 const expressive: MotionTokens = {
-  duration: { instant: 0, fast: 180, base: 360, slow: 600, cinematic: 950 },
+  duration: { instant: 0, fast: 140, base: 340, slow: 700, cinematic: 1200 },
   easing: {
     standard: [0.34, 1.56, 0.64, 1], // back-out overshoot
     entrance: [0.34, 1.56, 0.64, 1],

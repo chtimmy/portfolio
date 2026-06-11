@@ -54,9 +54,12 @@ const num = (name: string, min: number, max: number, def: number, step?: number,
   description,
 });
 
-// loop -> trigger="mount"; scroll -> trigger="inView" inside a scroll box.
-const scrollable = (mode: DemoMode, el: (trigger: 'mount' | 'inView') => ReactNode): ReactNode =>
-  mode === 'scroll' ? <ScrollBox>{() => el('inView')}</ScrollBox> : el('mount');
+// loop -> trigger="mount"; scroll -> trigger="inView" inside a scroll box. In scroll mode `once` is
+// false so the element re-hides/re-reveals as you scroll up and down.
+const scrollable = (
+  mode: DemoMode,
+  el: (trigger: 'mount' | 'inView', once: boolean) => ReactNode,
+): ReactNode => (mode === 'scroll' ? <ScrollBox>{() => el('inView', false)}</ScrollBox> : el('mount', true));
 
 function DemoBox({ label, accent }: { label: string; accent: string }) {
   return (
@@ -77,9 +80,10 @@ export const registry: Record<string, DemoEntry> = {
       s('duration', DURATIONS, 'slow', 'duration'),
     ],
     render: (v, { accent, mode }) =>
-      scrollable(mode, (trigger) => (
+      scrollable(mode, (trigger, once) => (
         <Reveal
           trigger={trigger}
+          once={once}
           variant={v.variant as 'fade' | 'slide' | 'scale'}
           from={v.from as 'up' | 'down' | 'left' | 'right'}
           distance={v.distance as never}
@@ -100,9 +104,10 @@ export const registry: Record<string, DemoEntry> = {
       s('easing', EASINGS, 'entrance', 'easing'),
     ],
     render: (v, { mode }) =>
-      scrollable(mode, (trigger) => (
+      scrollable(mode, (trigger, once) => (
         <ImageReveal
           trigger={trigger}
+          once={once}
           src={DEMO_IMAGE}
           alt="Demo"
           from={v.from as 'left' | 'right' | 'top' | 'bottom'}
@@ -124,9 +129,10 @@ export const registry: Record<string, DemoEntry> = {
       { kind: 'text', name: 'text', default: 'Type that arrives in pieces.' },
     ],
     render: (v, { mode }) =>
-      scrollable(mode, (trigger) => (
+      scrollable(mode, (trigger, once) => (
         <TextReveal
           trigger={trigger}
+          once={once}
           text={v.text as string}
           by={v.by as 'character' | 'word' | 'line'}
           stagger={v.stagger as never}
@@ -304,9 +310,10 @@ export const registry: Record<string, DemoEntry> = {
     modes: ['loop', 'scroll'],
     controls: [num('value', 0, 10000, 1280, 10), s('duration', DURATIONS, 'cinematic', 'duration'), s('easing', EASINGS, 'standard', 'easing')],
     render: (v, { mode }) =>
-      scrollable(mode, (trigger) => (
+      scrollable(mode, (trigger, once) => (
         <AnimatedNumber
           trigger={trigger}
+          once={once}
           value={v.value as number}
           duration={v.duration as never}
           easing={v.easing as never}
@@ -320,9 +327,9 @@ export const registry: Record<string, DemoEntry> = {
     modes: ['loop', 'scroll'],
     controls: [num('value', 0, 100, 78), s('duration', DURATIONS, 'slow', 'duration'), { kind: 'text', name: 'label', default: 'Engineering' }, num('thickness', 4, 20, 8)],
     render: (v, { accent, mode }) =>
-      scrollable(mode, (trigger) => (
+      scrollable(mode, (trigger, once) => (
         <div className="w-full max-w-sm" style={{ color: accent }}>
-          <StatBar trigger={trigger} value={v.value as number} duration={v.duration as never} label={v.label as string} thickness={v.thickness as number} />
+          <StatBar trigger={trigger} once={once} value={v.value as number} duration={v.duration as never} label={v.label as string} thickness={v.thickness as number} />
         </div>
       )),
     code: (v) => `<StatBar value={${v.value}} duration="${v.duration}" label="${v.label}" thickness={${v.thickness}} />`,
@@ -392,8 +399,8 @@ export const registry: Record<string, DemoEntry> = {
     modes: ['loop', 'scroll'],
     controls: [s('stagger', ['tight', 'base', 'loose'], 'base', 'stagger'), s('from', DIRECTIONS, 'up'), s('distance', DISTANCES, 'base', 'distance')],
     render: (v, { mode }) =>
-      scrollable(mode, (trigger) => (
-        <Stagger trigger={trigger} className="flex flex-wrap justify-center gap-2" stagger={v.stagger as never} from={v.from as never} distance={v.distance as never}>
+      scrollable(mode, (trigger, once) => (
+        <Stagger trigger={trigger} once={once} className="flex flex-wrap justify-center gap-2" stagger={v.stagger as never} from={v.from as never} distance={v.distance as never}>
           {SKILLS.slice(0, 5).map((x) => (
             <Pill key={x}>{x}</Pill>
           ))}

@@ -52,7 +52,7 @@ describe('motion presets', () => {
 describe('motionVars (CSS variables)', () => {
   it('emits unit-tagged custom properties and omits springs', () => {
     const vars = motionVars(presets.calm) as Record<string, string>;
-    expect(vars['--umbra-duration-base']).toBe('440ms');
+    expect(vars['--umbra-duration-base']).toBe('400ms');
     expect(vars['--umbra-distance-base']).toBe('22px');
     expect(vars['--umbra-stagger-base']).toBe('130ms');
     expect(vars['--umbra-ease-standard']).toBe('cubic-bezier(0.4, 0, 0.2, 1)');

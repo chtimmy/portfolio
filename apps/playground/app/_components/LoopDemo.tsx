@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
 export function LoopDemo({
   children,
   deps = '',
-  interval = 2000,
+  interval = 2500,
 }: {
   children: ReactNode;
   deps?: string;

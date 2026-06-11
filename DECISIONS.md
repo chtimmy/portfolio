@@ -3,6 +3,17 @@
 Running record of resolved decisions during the Umbra build. Newest first. See
 `motion-toolkit-build-plan.md` for the phased plan this implements.
 
+## 2026-06-10 — Duration scale re-spaced + resettable scroll demos
+
+- **Wider duration steps.** The old scale was too tight to tell `fast`/`base`/`slow` apart and `slow`
+  didn't read as slow. Re-tuned to ~2× steps: **calm** `0/160/400/850/1400`, **expressive**
+  `0/140/340/700/1200`. Affects the whole product feel (intended — the scale is core). The css-vars
+  test's expected `--umbra-duration-base` moved 440→400ms.
+- **Scroll demos reset.** In Scroll mode the registry passes `once={false}`, so inView components
+  re-hide on scroll-up and re-reveal on scroll-down (scroll back and forth to judge them).
+  `AnimatedNumber` (imperative) now resets `count` to `from` when out of view so it re-counts.
+- `LoopDemo` interval 2000→2500ms to fit the longer `cinematic`.
+
 ## 2026-06-10 — Phase 3a refinement: legible playground
 
 Round 2 on the playground after review (controls felt inert; tokens confusing; previews static):
