@@ -17,7 +17,13 @@ const serif = Newsreader({
   variable: '--font-serif',
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://umbra-design.vercel.app';
+// Prefer an explicit URL; otherwise use Vercel's stable production domain (injected at build),
+// falling back to localhost for `next dev`.
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'http://localhost:3001');
 const title = 'Timmy — Systems & Automation';
 const description =
   'I build the systems and automations that keep businesses running. Portfolio built with Umbra, a motion toolkit I made.';
