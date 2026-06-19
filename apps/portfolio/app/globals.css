@@ -6,6 +6,10 @@
 
 /* ── Deep-space palette ────────────────────────────────────────────────────── */
 :root {
+  /* Declare the page as dark so the browser's *base canvas* color (the color Chrome paints around/
+     beneath the page before/while it rasters) is dark — not the profile's custom window color. This is
+     what surfaces as a strip at the bottom on first load in custom-themed Chrome profiles. */
+  color-scheme: dark;
   --void: #05060a;
   --deep: #0b0f1a;
   --ice: #eaedf7;
@@ -16,9 +20,12 @@
   --line: rgba(255, 255, 255, 0.08);
 }
 
+/* Solid literal background on `html` itself (not via a custom property) — `html`'s background is what
+   Chrome uses to fill the canvas/overscroll region, and a literal value can't depend on var resolution
+   timing on first paint. */
 html,
 body {
-  background: var(--void);
+  background: #05060a;
   color: var(--ice);
 }
 html {
