@@ -5,9 +5,11 @@ import { AnimatePresence, animate, motion, useMotionValue, useTransform } from '
 import type { MotionValue } from 'motion/react';
 import {
   LineStagger,
+  MotionProvider,
   OutlineTrace,
   ScanlineReveal,
   SkillRadar,
+  useMotionTokens,
   useReducedMotion,
   useSceneTransition,
 } from '@umbra/motion';
@@ -80,7 +82,12 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
   const frontOpacity = useTransform(rotateY, (v): number => (norm(v) < 90 || norm(v) > 270 ? 1 : 0));
   const backOpacity = useTransform(rotateY, (v): number => (norm(v) >= 90 && norm(v) <= 270 ? 1 : 0));
 
-  return (
+  // Mobile only: slow the scan-line reveal for a more cinematic develop (the dossier's ScanlineReveals
+  // read the `epic` duration token). Override just that token for this subtree; desktop is untouched.
+  const baseTokens = useMotionTokens();
+  const slowTokens = { ...baseTokens, duration: { ...baseTokens.duration, epic: 4200 } };
+
+  const card = (
     <div className="mx-auto flex min-h-full w-full max-w-5xl items-center justify-center px-4 py-4 sm:py-12">
       <div style={{ perspective: 2000, width: 'min(96vw, 960px)' }}>
         <motion.div
@@ -88,7 +95,7 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
             rotateY,
             transformStyle: 'preserve-3d',
             position: 'relative',
-            height: isMobile ? 'min(80dvh, 760px)' : 'min(86vh, 760px)',
+            height: isMobile ? 'min(88dvh, 760px)' : 'min(86vh, 760px)',
           }}
         >
           <Face solid={isMobile} opacity={isMobile ? frontOpacity : undefined}>
@@ -110,6 +117,17 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
         </motion.div>
       </div>
     </div>
+  );
+
+  // Wrap in a token override (no DOM node) only on mobile, so the slower scan applies there alone.
+  return isMobile ? (
+    // Preserve the hero's forced-motion setting (`reduced` is read from the parent provider) so the
+    // override only changes timing, not whether the scan plays.
+    <MotionProvider tokens={slowTokens} reducedMotion={reduced} as={false}>
+      {card}
+    </MotionProvider>
+  ) : (
+    card
   );
 }
 
@@ -196,7 +214,7 @@ function CardFront({
           <img
             src={data.photoUrl}
             alt={`${data.name} dossier photo`}
-            className="h-[200px] w-[160px] shrink-0 rounded-lg object-cover"
+            className="h-[140px] w-[112px] shrink-0 rounded-lg object-cover sm:h-[200px] sm:w-[160px]"
           />
           <div className="flex flex-col justify-center">
             <div className="flex flex-wrap items-baseline gap-x-2">
