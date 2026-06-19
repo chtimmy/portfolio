@@ -29,6 +29,18 @@ body {
   font-family: var(--font-body), system-ui, sans-serif;
 }
 
+/* Bulletproof full-viewport dark backstop: a fixed, non-promoted layer painted behind all content, so
+   the void always fills the screen edge-to-edge regardless of how the scene's composited (will-change)
+   backdrop layers raster on first paint. Fixes a prod-only green strip at the bottom on initial load. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--void);
+  pointer-events: none;
+}
+
 ::selection {
   background: color-mix(in srgb, var(--accent) 35%, transparent);
 }
