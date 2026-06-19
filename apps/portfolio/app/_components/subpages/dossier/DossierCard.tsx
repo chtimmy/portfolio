@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, animate, motion, useMotionValue, useTransform } from 'motion/react';
+import type { MotionValue } from 'motion/react';
 import {
   LineStagger,
   OutlineTrace,
@@ -63,16 +64,34 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
   const [backReady, setBackReady] = useState(false);
   const decrypted = openCount > 0;
 
+  // Drive the flip from an explicit motion value (instead of the `animate` prop) so each face's
+  // opacity can track the live rotation. On mobile `backface-visibility: hidden` doesn't reliably
+  // hide the rotated-away front (the rounded/overflow-hidden face composites into its own layer), so
+  // we paint exactly one face at a time: the away side switches to opacity 0 at 90° — where the card
+  // is edge-on and the switch is invisible. Desktop keeps full-opacity faces and is unaffected.
+  const rotateY = useMotionValue(0);
+  useEffect(() => {
+    const controls = animate(rotateY, flipped ? 180 : 0, reduced ? { duration: 0 } : { type: 'spring', stiffness: 60, damping: 15 });
+    controls.then(() => setBackReady(flipped)); // flip settled: true on the back, false on the front
+    return () => controls.stop();
+  }, [flipped, reduced, rotateY]);
+
+  const norm = (v: number) => ((v % 360) + 360) % 360;
+  const frontOpacity = useTransform(rotateY, (v): number => (norm(v) < 90 || norm(v) > 270 ? 1 : 0));
+  const backOpacity = useTransform(rotateY, (v): number => (norm(v) >= 90 && norm(v) <= 270 ? 1 : 0));
+
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-5xl items-center justify-center px-4 py-12">
+    <div className="mx-auto flex min-h-full w-full max-w-5xl items-center justify-center px-4 py-4 sm:py-12">
       <div style={{ perspective: 2000, width: 'min(96vw, 960px)' }}>
         <motion.div
-          animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 60, damping: 15 }}
-          onAnimationComplete={() => setBackReady(flipped)} // flip settled: true on the back, false on the front
-          style={{ transformStyle: 'preserve-3d', position: 'relative', height: 'min(86vh, 760px)' }}
+          style={{
+            rotateY,
+            transformStyle: 'preserve-3d',
+            position: 'relative',
+            height: isMobile ? 'min(80dvh, 760px)' : 'min(86vh, 760px)',
+          }}
         >
-          <Face solid={isMobile}>
+          <Face solid={isMobile} opacity={isMobile ? frontOpacity : undefined}>
             {/* Gated so the front's reveals fire only once the scene is open + visible (see `ready`). */}
             {ready ? (
               <CardFront data={data} onFlip={() => setFlipped(true)} decrypted={decrypted} />
@@ -80,7 +99,7 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
               <FrontPlaceholder />
             )}
           </Face>
-          <Face back solid={isMobile}>
+          <Face back solid={isMobile} opacity={isMobile ? backOpacity : undefined}>
             {/* Gated on the flip finishing (`backReady`) + keyed so the scan starts fresh, facing the viewer. */}
             {flipped && backReady ? (
               <CardBack key={openCount} data={data} onFlip={() => setFlipped(false)} />
@@ -98,18 +117,22 @@ function Face({
   children,
   back,
   solid,
+  opacity,
 }: {
   children: React.ReactNode;
   back?: boolean;
   /** Mobile hardening against front-face bleed-through: opaque face + its own backface guard. */
   solid?: boolean;
+  /** Mobile only: opacity tracking the flip so only the facing side paints (undefined → always 1). */
+  opacity?: MotionValue<number>;
 }) {
   return (
-    <div
+    <motion.div
       style={{
         position: back ? 'absolute' : 'relative',
         inset: back ? 0 : undefined,
         height: '100%',
+        opacity,
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
         transform: back ? 'rotateY(180deg)' : undefined,
@@ -131,7 +154,7 @@ function Face({
       >
         {children}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

@@ -50,7 +50,10 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
   // Mobile shrinks the orbit (nodes/dots/cards) to 75% and the text to 80% so the whole signature
   // sits cleanly within one phone screen. Desktop is untouched.
   const isMobile = useIsMobile();
+  // Orbit radius + dots stay at 0.75 on mobile; the notecards shrink further (uniform 0.6 → card 80%
+  // / text 60% of the previous mobile size) so the nodes read clean on a phone. Desktop = 1.
   const nodeScale = isMobile ? 0.75 : 1;
+  const cardScale = isMobile ? 0.6 : 1;
   // The orbit's geometry is derived from the measured stage size and an animation clock — both
   // client-only — and renders full-precision floats into inline styles. SSR'ing it serializes those
   // floats lossily and trips hydration, so the animated layers render only after mount; the server
@@ -327,7 +330,7 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
                     textAlign: 'inherit',
                   }}
                 >
-                  <Notecard project={p_} selected={sel} widthScale={nodeScale} />
+                  <Notecard project={p_} selected={sel} scale={cardScale} />
                 </button>
               </div>
             );
@@ -341,18 +344,20 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
 function Notecard({
   project,
   selected,
-  widthScale = 1,
+  scale = 1,
 }: {
   project: Project;
   selected: boolean;
-  widthScale?: number;
+  /** Uniform layout scale for the whole card (box, padding, sprocket, text). `1` = desktop size. */
+  scale?: number;
 }) {
   const sprocket = 'repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 11px)';
   return (
     <div
-      className="relative overflow-hidden rounded-lg backdrop-blur-sm"
+      className="relative overflow-hidden backdrop-blur-sm"
       style={{
-        width: 184 * widthScale,
+        width: 184 * scale,
+        borderRadius: 8 * scale,
         background: 'color-mix(in srgb, var(--deep) 84%, transparent)',
         // outline is always on; it lightens with the card's overall opacity as it orbits behind.
         border: `1px solid ${selected ? 'var(--accent)' : 'color-mix(in srgb, var(--accent) 60%, transparent)'}`,
@@ -361,21 +366,30 @@ function Notecard({
           : '0 10px 34px rgba(0,0,0,0.5)',
       }}
     >
-      <div style={{ height: 9, background: sprocket }} />
-      <div className="px-4 py-3 text-center">
-        <div className="u-display text-lg font-semibold text-[color:var(--ice)]">
+      <div style={{ height: 9 * scale, background: sprocket }} />
+      <div className="text-center" style={{ padding: `${12 * scale}px ${16 * scale}px` }}>
+        <div
+          className="u-display font-semibold text-[color:var(--ice)]"
+          style={{ fontSize: 18 * scale, lineHeight: 1.2 }}
+        >
           {project.name}
         </div>
-        <div className="u-mono mt-1 text-[9px] tracking-wide text-[color:var(--muted)]">
+        <div
+          className="u-mono tracking-wide text-[color:var(--muted)]"
+          style={{ fontSize: 9 * scale, marginTop: 4 * scale }}
+        >
           {project.kind}
         </div>
         {selected && (
-          <div className="mt-2 text-[12px] leading-snug text-[color:var(--muted)]">
+          <div
+            className="leading-snug text-[color:var(--muted)]"
+            style={{ fontSize: 12 * scale, marginTop: 8 * scale }}
+          >
             {project.blurb}
           </div>
         )}
       </div>
-      <div style={{ height: 9, background: sprocket }} />
+      <div style={{ height: 9 * scale, background: sprocket }} />
     </div>
   );
 }
