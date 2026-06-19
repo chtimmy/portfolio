@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Sora, Hanken_Grotesk, JetBrains_Mono, Newsreader } from 'next/font/google';
 import './globals.css';
@@ -44,6 +44,12 @@ export const metadata: Metadata = {
     title,
     description,
   },
+};
+
+// Match the browser chrome / overscroll gutter to the deep-space void (#05060a = --void) so the
+// page reads edge-to-edge dark instead of falling back to the browser's theme color on first paint.
+export const viewport: Viewport = {
+  themeColor: '#05060a',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

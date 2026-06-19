@@ -5,7 +5,7 @@
   "description": "Umbra — a motion component toolkit (token-driven React + Motion) and the portfolio built with it.",
   "packageManager": "pnpm@11.5.3",
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "pnpm --parallel -r --filter=./apps/* dev",

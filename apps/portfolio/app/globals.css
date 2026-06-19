@@ -21,7 +21,11 @@ body {
   background: var(--void);
   color: var(--ice);
 }
+html {
+  min-height: 100%;
+}
 body {
+  min-height: 100dvh;
   font-family: var(--font-body), system-ui, sans-serif;
 }
 

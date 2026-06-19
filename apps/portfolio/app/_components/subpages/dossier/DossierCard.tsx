@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  DecodeText,
   LineStagger,
   OutlineTrace,
   ScanlineReveal,
@@ -26,7 +25,7 @@ export interface DossierCardProps {
  * The Resume "Agent Dossier" — a flip card that decrypts on open. Front: identity, soft-skills radar,
  * a career-summary band, and a prominent DECRYPT FILE button. Back: Mission Log + Credentials & Loadout.
  * The reveal language is one idea — information resolving from cover into clarity — expressed as
- * DecodeText (scramble), ScanlineReveal (develop), AnimatedNumber (count-up), LineStagger (cascade) and
+ * ScanlineReveal (develop), AnimatedNumber (count-up), LineStagger (cascade) and
  * the radar's draw-on. Back content re-mounts on every flip so it re-develops; a persistent band cue
  * points at the verso. Flip is optionally controllable for a page-level exit-intent prompt.
  */
@@ -144,7 +143,7 @@ function CardFront({
   return (
     <>
       <StampBar right="FILE 001" />
-      {/* One slow scan develops the whole front; DecodeText still scrambles the identity within it. */}
+      {/* One slow scan develops the whole front. */}
       <ScanlineReveal
         trigger="mount"
         duration="epic"
@@ -161,24 +160,14 @@ function CardFront({
           />
           <div className="flex flex-col justify-center">
             <div className="flex flex-wrap items-baseline gap-x-2">
-              <DecodeText
-                text={data.codename}
-                trigger="mount"
-                mode="together"
-                duration="slow"
-                className="u-mono text-[12px] tracking-[0.35em]"
-                color="var(--accent)"
-              />
+              <span className="u-mono text-[12px] tracking-[0.35em]" style={{ color: 'var(--accent)' }}>
+                {data.codename}
+              </span>
               <span className="u-mono text-[12px] tracking-[0.2em] text-[color:var(--muted)]">· {data.status}</span>
             </div>
-            <DecodeText
-              text={data.name}
-              trigger="mount"
-              mode="together"
-              duration="slow"
-              as="h2"
-              className="u-display mt-1 text-4xl font-semibold tracking-tight text-[color:var(--ice)] md:text-5xl"
-            />
+            <h2 className="u-display mt-1 text-4xl font-semibold tracking-tight text-[color:var(--ice)] md:text-5xl">
+              {data.name}
+            </h2>
             <div className="mt-4 flex flex-wrap items-center gap-2">
               {data.contacts.map((c) => (
                 <ContactChip key={c.label} contact={c} />
@@ -397,11 +386,7 @@ function DecryptButton({ onFlip, decrypted }: { onFlip: () => void; decrypted: b
       transition={reduced ? { duration: 0 } : { duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
     >
       <LockGlyph open={phase !== 'idle' || decrypted} />
-      {phase === 'idle' ? (
-        <span>{label}</span>
-      ) : (
-        <DecodeText key={phase} text={label} trigger="mount" mode="sweep" duration="fast" />
-      )}
+      <span>{label}</span>
     </motion.button>
   );
 }
@@ -456,25 +441,11 @@ function CardBack({ data, onFlip }: { data: DossierData; onFlip: () => void }) {
               <div key={`${e.org}-${e.period}`} className="relative pl-5">
                 <span className="absolute left-0 top-[0.875rem] h-2 w-2 -translate-y-1/2 rounded-full" style={{ background: 'var(--accent)' }} />
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <DecodeText
-                    text={e.role}
-                    trigger="mount"
-                    mode="sweep"
-                    duration="base"
-                    as="h3"
-                    className="u-display text-lg font-semibold text-[color:var(--ice)]"
-                  />
+                  <h3 className="u-display text-lg font-semibold text-[color:var(--ice)]">{e.role}</h3>
                   <div className="u-mono text-[11px] tracking-wider text-[color:var(--muted)]">{e.period}</div>
                 </div>
                 <div className="flex flex-wrap items-baseline gap-x-2">
-                  <DecodeText
-                    text={e.org}
-                    trigger="mount"
-                    mode="sweep"
-                    duration="base"
-                    className="u-mono text-[12px] tracking-wide"
-                    color="var(--accent)"
-                  />
+                  <span className="u-mono text-[12px] tracking-wide" style={{ color: 'var(--accent)' }}>{e.org}</span>
                   <span className="u-mono text-[11px] tracking-wide text-[color:var(--muted)]">· {e.orgType}</span>
                 </div>
                 <div className="mt-2 flex flex-col gap-1.5">
@@ -536,13 +507,9 @@ function CardBack({ data, onFlip }: { data: DossierData; onFlip: () => void }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <DecodeText
-        text={title}
-        trigger="mount"
-        mode="sweep"
-        duration="fast"
-        className="u-mono mb-3 block text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted)]"
-      />
+      <span className="u-mono mb-3 block text-[10px] uppercase tracking-[0.2em] text-[color:var(--muted)]">
+        {title}
+      </span>
       {children}
     </div>
   );

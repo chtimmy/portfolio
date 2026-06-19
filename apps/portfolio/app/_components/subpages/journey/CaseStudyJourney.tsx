@@ -4,7 +4,6 @@ import { useRef } from 'react';
 import { motion, useScroll } from 'motion/react';
 import {
   AnimatedNumber,
-  DecodeText,
   MotionProvider,
   Reveal,
   ScrollStack,
@@ -152,7 +151,7 @@ function CaseStudyJourneyInner({ slug }: { slug: string }) {
             CASE STUDY · {study.title.toUpperCase()}
           </div>
           <h2 className="u-display mx-auto mt-4 max-w-3xl text-3xl font-semibold leading-tight tracking-tight text-[color:var(--ice)] md:text-5xl">
-            <DecodeText text={study.outcomeHeadline} trigger="mount" stagger="tight" />
+            {study.outcomeHeadline}
           </h2>
           <p className="u-mono mx-auto mt-5 max-w-2xl text-[11px] uppercase leading-relaxed tracking-[0.18em] text-[color:var(--muted)]">
             {study.context}
