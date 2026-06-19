@@ -70,19 +70,25 @@ export function resolveReveal(
     return { initial: { opacity: 0 }, animate: { opacity: 1 }, transition };
   }
 
+  // `animate` always returns the full neutral target (opacity 1, no translate, no scale) regardless
+  // of variant. This way, if the variant changes on a live element that still carries a transform
+  // from a previous variant (e.g. slide → fade without a remount), Motion animates every property
+  // back to rest instead of stranding the element off to the side.
+  const settled: Target = { opacity: 1, x: 0, y: 0, scale: 1 };
+
   switch (variant) {
     case 'fade':
-      return { initial: { opacity: 0 }, animate: { opacity: 1 }, transition };
+      return { initial: { opacity: 0 }, animate: settled, transition };
     case 'scale':
       return {
         initial: { opacity: 0, scale: scaleFor(distance) },
-        animate: { opacity: 1, scale: 1 },
+        animate: settled,
         transition,
       };
     case 'slide':
       return {
         initial: { opacity: 0, ...slideOffset(from, tokens.distance[distance]) },
-        animate: { opacity: 1, x: 0, y: 0 },
+        animate: settled,
         transition,
       };
   }

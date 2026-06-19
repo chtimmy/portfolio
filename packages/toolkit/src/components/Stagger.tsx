@@ -3,7 +3,7 @@
 import { Children } from 'react';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import type {
   DistanceToken,
   DurationToken,
@@ -25,6 +25,8 @@ export interface StaggerProps {
   /** Animate on scroll-into-view (default) or on mount. */
   trigger?: 'inView' | 'mount';
   once?: boolean;
+  /** For `inView`: a scrollable ancestor to track instead of the window viewport. */
+  root?: RefObject<HTMLElement | null>;
   className?: string;
 }
 
@@ -51,6 +53,7 @@ export function Stagger({
   easing = 'entrance',
   trigger = 'inView',
   once = true,
+  root,
   className,
 }: StaggerProps) {
   const tokens = useMotionTokens();
@@ -73,7 +76,7 @@ export function Stagger({
   const animateProps =
     trigger === 'mount'
       ? ({ animate: 'show' } as const)
-      : ({ whileInView: 'show', viewport: { once, amount: 0.2 } } as const);
+      : ({ whileInView: 'show', viewport: { once, amount: 0.2, root } } as const);
 
   return (
     <motion.div

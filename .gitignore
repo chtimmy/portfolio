@@ -9,6 +9,9 @@ build/
 out/
 *.tsbuildinfo
 
+# vercel
+.vercel/
+
 # env / secrets
 .env
 .env.*

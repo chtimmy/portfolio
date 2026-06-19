@@ -1,12 +1,17 @@
 'use client';
 
-import type { MouseEvent, ReactNode } from 'react';
+import type { MouseEvent, ReactNode, RefObject } from 'react';
 import { useReducedMotion } from '../provider';
 
 export interface SmoothScrollProps {
   children: ReactNode;
   /** Pixels to leave above the target (e.g. for a fixed header). Default `0`. */
   offset?: number;
+  /**
+   * Scroll within this element instead of the window (anchors must point to ids inside it). Lets the
+   * eased scrolling work inside a panel.
+   */
+  container?: RefObject<HTMLElement | null>;
   className?: string;
 }
 
@@ -15,7 +20,7 @@ export interface SmoothScrollProps {
  * of the browser's instant jump. Respects reduced motion by jumping immediately, and updates the
  * URL hash so links stay shareable and the back button works.
  */
-export function SmoothScroll({ children, offset = 0, className }: SmoothScrollProps) {
+export function SmoothScroll({ children, offset = 0, container, className }: SmoothScrollProps) {
   const reduced = useReducedMotion();
 
   const onClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -27,9 +32,17 @@ export function SmoothScroll({ children, offset = 0, className }: SmoothScrollPr
     if (!target) return;
 
     e.preventDefault();
-    const top = target.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: reduced ? 'auto' : 'smooth' });
-    history.pushState(null, '', `#${id}`);
+    const behavior = reduced ? 'auto' : 'smooth';
+    const root = container?.current;
+    if (root) {
+      // position of the target relative to the container's current scroll
+      const top = target.getBoundingClientRect().top - root.getBoundingClientRect().top + root.scrollTop - offset;
+      root.scrollTo({ top, behavior });
+    } else {
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior });
+      history.pushState(null, '', `#${id}`);
+    }
   };
 
   return (

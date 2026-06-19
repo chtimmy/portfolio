@@ -33,7 +33,11 @@ export function Parallax({ children, speed = 0.3, range = 'dramatic', root, clas
     offset: ['start end', 'end start'],
   });
 
-  const amount = tokens.distance[range] * speed;
+  // Distance tokens are sized for entrance offsets (single-digit→tens of px); parallax travels over a
+  // whole scroll pass, so scale them up to make even `subtle`/`base` perceptibly distinct (the
+  // dramatic-only complaint). `speed` stays a dimensionless -1..1 strength on top of that.
+  const PARALLAX_GAIN = 4;
+  const amount = tokens.distance[range] * speed * PARALLAX_GAIN;
   const raw = useTransform(scrollYProgress, [0, 1], [amount, -amount]);
   const y = useSpring(raw, tokens.spring.gentle);
 

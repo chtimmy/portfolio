@@ -1,10 +1,13 @@
 'use client';
 
 import { motion } from 'motion/react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode, RefObject } from 'react';
 import type { DistanceToken, DurationToken, EasingToken } from '../tokens/tokens.schema';
 import { useReveal } from '../hooks/use-reveal';
 import type { RevealFrom, RevealVariant } from '../hooks/use-reveal';
+import { applyLook } from '../looks/looks.schema';
+import { revealLooks } from './Reveal.looks';
+import type { RevealLook } from './Reveal.looks';
 
 export interface RevealProps {
   children: ReactNode;
@@ -15,12 +18,20 @@ export interface RevealProps {
   duration?: DurationToken;
   easing?: EasingToken;
   distance?: DistanceToken;
+  /**
+   * A named "look" — an opinionated preset of the motion props above (and, where defined, styling).
+   * Explicit props still win over the look. See `revealLooks`.
+   */
+  look?: RevealLook;
   /** Animate when scrolled into view (`'inView'`, default) or immediately on mount (`'mount'`). */
   trigger?: 'inView' | 'mount';
   /** For `inView`: only animate the first time it enters. Default `true`. */
   once?: boolean;
+  /** For `inView`: a scrollable ancestor to track instead of the window viewport. */
+  root?: RefObject<HTMLElement | null>;
   /** Extra delay in seconds before the entrance. */
   delay?: number;
+  style?: CSSProperties;
   className?: string;
 }
 
@@ -36,17 +47,24 @@ export function Reveal({
   duration,
   easing,
   distance,
+  look,
   trigger = 'inView',
   once = true,
+  root,
   delay,
+  style,
   className,
 }: RevealProps) {
-  const { initial, animate, transition } = useReveal({ variant, from, duration, easing, distance });
+  // A `look` presets the motion props (and may carry styling); explicit props still win.
+  const merged = applyLook(revealLooks, look, { variant, from, duration, easing, distance });
+  const { initial, animate, transition } = useReveal(merged.motion);
   const withDelay = delay ? { ...transition, delay } : transition;
+  const cls = [merged.className, className].filter(Boolean).join(' ') || undefined;
+  const mergedStyle = merged.style ? { ...merged.style, ...style } : style;
 
   if (trigger === 'mount') {
     return (
-      <motion.div className={className} initial={initial} animate={animate} transition={withDelay}>
+      <motion.div className={cls} style={mergedStyle} initial={initial} animate={animate} transition={withDelay}>
         {children}
       </motion.div>
     );
@@ -54,10 +72,11 @@ export function Reveal({
 
   return (
     <motion.div
-      className={className}
+      className={cls}
+      style={mergedStyle}
       initial={initial}
       whileInView={animate}
-      viewport={{ once, amount: 0.3 }}
+      viewport={{ once, amount: 0.3, root }}
       transition={withDelay}
     >
       {children}

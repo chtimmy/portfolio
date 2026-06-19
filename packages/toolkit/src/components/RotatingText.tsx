@@ -14,6 +14,8 @@ export interface RotatingTextProps {
   duration?: DurationToken;
   easing?: EasingToken;
   distance?: DistanceToken;
+  /** Color of the rotating word. Default `currentColor` (inherits). */
+  color?: string;
   className?: string;
 }
 
@@ -28,6 +30,7 @@ export function RotatingText({
   duration = 'base',
   easing = 'emphasized',
   distance = 'subtle',
+  color = 'currentColor',
   className,
 }: RotatingTextProps) {
   const tokens = useMotionTokens();
@@ -59,7 +62,7 @@ export function RotatingText({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -d }}
           transition={transition}
-          style={{ position: 'absolute', left: 0, whiteSpace: 'nowrap' }}
+          style={{ position: 'absolute', left: 0, whiteSpace: 'nowrap', color }}
         >
           {words[index]}
         </motion.span>

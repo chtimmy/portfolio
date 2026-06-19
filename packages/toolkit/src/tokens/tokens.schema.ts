@@ -11,7 +11,7 @@
  */
 
 /** Named steps on each scale. Keep these stable — components reference them by key. */
-export type DurationToken = 'instant' | 'fast' | 'base' | 'slow' | 'cinematic';
+export type DurationToken = 'fast' | 'base' | 'slow' | 'cinematic' | 'epic';
 export type EasingToken = 'standard' | 'entrance' | 'exit' | 'emphasized';
 export type SpringToken = 'gentle' | 'snappy' | 'bouncy';
 export type StaggerToken = 'tight' | 'base' | 'loose';

@@ -25,8 +25,8 @@ export function EasingCurve({ bezier, accent }: EasingCurveProps) {
 
   return (
     <svg
-      viewBox="0 0 100 100"
-      className="h-44 w-full overflow-visible"
+      viewBox="-6 -10 112 120"
+      className="h-44 w-full"
       role="img"
       aria-label="Easing curve for the active preset"
     >

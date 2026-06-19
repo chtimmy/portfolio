@@ -2,6 +2,7 @@
 
 import { motion } from 'motion/react';
 import type { Transition, Variants } from 'motion/react';
+import type { RefObject } from 'react';
 import type {
   DistanceToken,
   DurationToken,
@@ -24,6 +25,8 @@ export interface TextRevealProps {
   /** Animate on scroll-into-view (default) or on mount. */
   trigger?: 'inView' | 'mount';
   once?: boolean;
+  /** For `inView`: a scrollable ancestor to track instead of the window viewport. */
+  root?: RefObject<HTMLElement | null>;
   /** Element for the wrapper. Default `'span'`. */
   as?: 'span' | 'p' | 'h1' | 'h2' | 'h3';
   className?: string;
@@ -43,6 +46,7 @@ export function TextReveal({
   distance = 'subtle',
   trigger = 'inView',
   once = true,
+  root,
   as = 'span',
   className,
 }: TextRevealProps) {
@@ -68,7 +72,7 @@ export function TextReveal({
   const animateProps =
     trigger === 'mount'
       ? ({ animate: 'show' } as const)
-      : ({ whileInView: 'show', viewport: { once, amount: 0.3 } } as const);
+      : ({ whileInView: 'show', viewport: { once, amount: 0.3, root } } as const);
 
   return (
     <MotionTag

@@ -73,9 +73,9 @@ export function ComponentDetail({ name }: { name: string }) {
         {summary && <p className="mt-2 text-[color:var(--color-muted)]">{summary}</p>}
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         {/* Live demo + code */}
-        <div className="flex flex-col gap-6">
+        <div className="flex min-w-0 flex-col gap-6">
           {entry.modes.length > 1 && (
             <div className="flex items-center gap-2">
               <span className="font-mono text-[11px] uppercase tracking-widest text-[color:var(--color-muted)]">
@@ -104,13 +104,20 @@ export function ComponentDetail({ name }: { name: string }) {
             </div>
           )}
 
-          <div className="flex min-h-[24rem] items-center justify-center overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-white/50 p-8">
+          <div className="flex min-h-[24rem] min-w-0 items-center justify-center overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-white/50 p-8">
             <MotionProvider preset={preset} reducedMotion={reduced} tokens={tokens} as={false}>
-              <div key={`${mode}-${replay}`} className="flex w-full items-center justify-center">
+              <div key={`${mode}-${replay}`} className="flex w-full min-w-0 items-center justify-center">
                 {mode === 'loop' ? <LoopDemo deps={loopDeps}>{demo}</LoopDemo> : demo}
               </div>
             </MotionProvider>
           </div>
+
+          {entry.note && (
+            <p className="-mt-2 flex items-start gap-2 text-[13px] leading-relaxed text-[color:var(--color-muted)]">
+              <span aria-hidden>›</span>
+              {entry.note}
+            </p>
+          )}
 
           <div>
             <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-[color:var(--color-muted)]">

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 400" width="320" height="400" role="img" aria-label="Dossier photo placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#11182b"/>
+      <stop offset="1" stop-color="#0b0f1a"/>
+    </linearGradient>
+    <linearGradient id="fig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b3656"/>
+      <stop offset="1" stop-color="#1a2238"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="400" fill="url(#bg)"/>
+  <g fill="url(#fig)">
+    <circle cx="160" cy="150" r="62"/>
+    <path d="M40 400c0-70 54-118 120-118s120 48 120 118z"/>
+  </g>
+  <g fill="none" stroke="#6e8bff" stroke-opacity="0.45" stroke-width="1.5">
+    <rect x="14" y="14" width="292" height="372" rx="6"/>
+    <line x1="14" y1="44" x2="306" y2="44"/>
+  </g>
+  <text x="26" y="36" fill="#818aa6" font-family="ui-monospace, monospace" font-size="13" letter-spacing="3">SUBJECT // CLASSIFIED</text>
+  <text x="26" y="384" fill="#6e8bff" font-family="ui-monospace, monospace" font-size="11" letter-spacing="2" opacity="0.7">PHOTO PENDING</text>
+</svg>

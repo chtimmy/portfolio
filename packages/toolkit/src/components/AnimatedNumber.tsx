@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import type { RefObject } from 'react';
 import { animate, motion, useInView, useMotionValue, useTransform } from 'motion/react';
 import type { DurationToken, EasingToken } from '../tokens/tokens.schema';
 import { useMotionTokens, useReducedMotion } from '../provider';
@@ -17,6 +18,8 @@ export interface AnimatedNumberProps {
   /** Count when scrolled into view (default) or on mount. */
   trigger?: 'inView' | 'mount';
   once?: boolean;
+  /** For `inView`: a scrollable ancestor to track instead of the window viewport. */
+  root?: RefObject<HTMLElement | null>;
   className?: string;
 }
 
@@ -35,12 +38,13 @@ export function AnimatedNumber({
   format = defaultFormat,
   trigger = 'inView',
   once = true,
+  root,
   className,
 }: AnimatedNumberProps) {
   const tokens = useMotionTokens();
   const reduced = useReducedMotion();
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once, amount: 0.5 });
+  const inView = useInView(ref, { once, amount: 0.5, root });
   const active = trigger === 'mount' || inView;
 
   const count = useMotionValue(from);

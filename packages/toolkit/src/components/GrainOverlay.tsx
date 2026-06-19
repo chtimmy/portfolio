@@ -6,6 +6,8 @@ import { useReducedMotion } from '../provider';
 export interface GrainOverlayProps {
   /** Grain opacity, 0–1. Default `0.12`. */
   opacity?: number;
+  /** Grain tint. Default `'#000'` (neutral, filmic). Any CSS color works. */
+  color?: string;
   /** Cover the whole viewport (`fixed`) instead of the nearest positioned parent. Default `false`. */
   fixed?: boolean;
   /** Blend mode for the grain. Default `'overlay'`. */
@@ -28,12 +30,16 @@ const NOISE = encodeURIComponent(
  */
 export function GrainOverlay({
   opacity = 0.12,
+  color = '#000',
   fixed = false,
   blendMode = 'overlay',
   className,
 }: GrainOverlayProps) {
   const reduced = useReducedMotion();
+  const noise = `url("data:image/svg+xml,${NOISE}")`;
 
+  // The noise is used as an alpha mask over a solid tint, so the grain can be any color. The mask
+  // shifts on a stepped keyframe for a filmic flicker (see `.umbra-grain` in styles.css).
   return (
     <div
       aria-hidden
@@ -45,8 +51,11 @@ export function GrainOverlay({
         pointerEvents: 'none',
         opacity,
         mixBlendMode: blendMode,
-        backgroundImage: `url("data:image/svg+xml,${NOISE}")`,
-        backgroundSize: '160px 160px',
+        backgroundColor: color,
+        maskImage: noise,
+        WebkitMaskImage: noise,
+        maskSize: '160px 160px',
+        WebkitMaskSize: '160px 160px',
         zIndex: 1,
       }}
     />

@@ -2,6 +2,7 @@
 
 import { motion } from 'motion/react';
 import type { Transition } from 'motion/react';
+import type { RefObject } from 'react';
 import type { DurationToken, EasingToken } from '../tokens/tokens.schema';
 import { useMotionTokens, useReducedMotion } from '../provider';
 
@@ -15,6 +16,8 @@ export interface ImageRevealProps {
   /** Reveal on scroll-into-view (default) or on mount. */
   trigger?: 'inView' | 'mount';
   once?: boolean;
+  /** For `inView`: a scrollable ancestor to track instead of the window viewport. */
+  root?: RefObject<HTMLElement | null>;
   className?: string;
 }
 
@@ -40,6 +43,7 @@ export function ImageReveal({
   easing = 'entrance',
   trigger = 'inView',
   once = true,
+  root,
   className,
 }: ImageRevealProps) {
   const tokens = useMotionTokens();
@@ -54,7 +58,7 @@ export function ImageReveal({
   const animateProps =
     trigger === 'mount'
       ? { animate: target }
-      : { whileInView: target, viewport: { once, amount: 0.3 } };
+      : { whileInView: target, viewport: { once, amount: 0.3, root } };
 
   return (
     <motion.div

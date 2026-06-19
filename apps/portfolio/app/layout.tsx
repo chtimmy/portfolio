@@ -1,15 +1,51 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { Sora, Hanken_Grotesk, JetBrains_Mono, Newsreader } from 'next/font/google';
 import './globals.css';
 
+// Display — used with restraint for the hero + node names.
+const sora = Sora({ subsets: ['latin'], weight: ['500', '600', '700'], variable: '--font-display' });
+// Body — quiet, neutral.
+const hanken = Hanken_Grotesk({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-body' });
+// Utility/data — the telemetry voice (eyebrow, node coordinates, toggle).
+const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-mono' });
+// Editorial serif — reserved for case-study pull-quotes (the memorable takeaway line).
+const serif = Newsreader({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  style: ['italic', 'normal'],
+  variable: '--font-serif',
+});
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://umbra-design.vercel.app';
+const title = 'Timmy — Systems & Automation';
+const description =
+  'I build the systems and automations that keep businesses running. Portfolio built with Umbra, a motion toolkit I made.';
+
 export const metadata: Metadata = {
-  title: 'Timmy — Portfolio',
-  description: 'Built with the Umbra motion toolkit.',
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    url: siteUrl,
+    siteName: title,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${sora.variable} ${hanken.variable} ${mono.variable} ${serif.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

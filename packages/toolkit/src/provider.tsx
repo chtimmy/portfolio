@@ -6,6 +6,7 @@ import { useReducedMotion as useSystemReducedMotion } from 'motion/react';
 import type { MotionTokens, PresetName } from './tokens/tokens.schema';
 import { defaultPresetName, defaultTokens, resolveTokens } from './tokens/presets';
 import { motionVars } from './tokens/css-vars';
+import { useMounted } from './hooks/use-mounted';
 
 interface MotionContextValue {
   preset: PresetName;
@@ -55,7 +56,11 @@ export function MotionProvider({
   style,
 }: MotionProviderProps) {
   const systemReduced = useSystemReducedMotion();
-  const resolvedReduced = reducedMotion ?? systemReduced ?? false;
+  // The OS `prefers-reduced-motion` query is unavailable during SSR / the first client render, so
+  // reading it then would mismatch hydration. Hold a stable value until mounted, then adopt the real
+  // preference. An explicit `reducedMotion` prop always wins (and stays deterministic).
+  const mounted = useMounted();
+  const resolvedReduced = reducedMotion ?? (mounted ? (systemReduced ?? false) : false);
   const tokens = tokensOverride ?? resolveTokens(preset);
 
   const value = useMemo<MotionContextValue>(

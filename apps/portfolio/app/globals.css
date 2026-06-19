@@ -3,3 +3,140 @@
 
 /* Pick up Tailwind classes used inside the toolkit (it's consumed from source). */
 @source '../../../packages/toolkit/src';
+
+/* ── Deep-space palette ────────────────────────────────────────────────────── */
+:root {
+  --void: #05060a;
+  --deep: #0b0f1a;
+  --ice: #eaedf7;
+  --muted: #818aa6;
+  --accent: #6e8bff; /* luminous iris — the single accent */
+  --active: #38e0c0; /* teal — "running / selected" */
+  --accent-caution: #e0a458; /* amber — "watch out" (case-study precaution Q&A) */
+  --line: rgba(255, 255, 255, 0.08);
+}
+
+html,
+body {
+  background: var(--void);
+  color: var(--ice);
+}
+body {
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* Font-role utilities (named to avoid clashing with Tailwind's own font-* utils). */
+.u-display {
+  font-family: var(--font-display), sans-serif;
+}
+.u-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+.u-serif {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+/* ── Case-study side rails (FlightPathProgress + Starfield) ── */
+@keyframes starDrift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-14px);
+  }
+}
+.rocket-bob {
+  animation: rocketBob 2.6s ease-in-out infinite;
+}
+@keyframes rocketBob {
+  0%,
+  100% {
+    transform: translateY(-1.5px);
+  }
+  50% {
+    transform: translateY(1.5px);
+  }
+}
+
+/* ── Orbit SVG text ── */
+.orbit-name {
+  font-family: var(--font-display), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+.orbit-kind {
+  font-family: var(--font-mono), monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  transition: opacity 0.3s ease;
+}
+.orbit-core-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}
+
+/* core breathing ring */
+.orbit-core-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: orbit-core 3.2s ease-in-out infinite;
+}
+@keyframes orbit-core {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-core-pulse {
+    animation: none;
+  }
+}
+
+/* ── Hero entrances (CSS, SSR-safe — no Framer at first paint) ── */
+@keyframes umbra-boot {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes umbra-boot-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.boot {
+  opacity: 0;
+  animation: umbra-boot 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.boot-scale {
+  opacity: 0;
+  animation: umbra-boot-scale 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .boot,
+  .boot-scale {
+    animation: none;
+    opacity: 1;
+  }
+}

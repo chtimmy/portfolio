@@ -3,6 +3,205 @@
 Running record of resolved decisions during the Umbra build. Newest first. See
 `motion-toolkit-build-plan.md` for the phased plan this implements.
 
+## 2026-06-16 — Coda 1-on-1 case study: block content model
+
+Built out the `meeting-os` case study (now "Coda 1-on-1 Meeting System") into a full 7-card study.
+The v1 `CaseStudyStep` only had `body: string`, which couldn't express ordered mixed content
+(intro → divider → bullets, intro → divider → Q&A). Resolved decisions:
+
+- **Block content model** (`apps/portfolio/app/_data/caseStudies.ts`). Added a `Block` union
+  (`paragraph`/`bullets`/`features`/`divider`/`diagram`/`images`/`qa`) plus `icon?`, `layout?`, and
+  `blocks?` on `CaseStudyStep`. Backward compatible: renderers prefer `blocks`, fall back to legacy
+  `body` (the Umbra study still uses `body`). `StepKind` widened to `string`.
+- **No new route.** The build plan assumed `/work/coda-1on1-system`; the real system renders
+  `caseStudies['meeting-os']` inside the orbital modal via `CaseStudyJourney`/`StepCard`. Kept the
+  `meeting-os` slug/id; rewrote content + `StepCard` in place.
+- **Renderers** in `subpages/journey/`: `StepBlocks.tsx` (block dispatch + `splitBlocks` for the
+  `layout:'split'` text-left/visual-right rule), `CodaFlowDiagram.tsx` (single-viewBox SVG,
+  Calendly+Drive → Zapier → Coda → Slack+Gmail, edge-draw on view, reduced→fully drawn),
+  `brand-icons.tsx` (Simple Icons paths; Slack inlined — removed from that set), `icons.ts` (explicit
+  lucide registry). All motion gated behind `useReducedMotion`.
+- **Caution color** `--accent-caution: #e0a458` (amber) for Card 6 precaution Q&A — question text +
+  leading icon only, not fills/borders.
+- **Hero subtitle** = the tool stack (`Coda · Zapier · …`), styled as a mono eyebrow row.
+- **Open (owner: Timmy):** real Card 5 dashboard screenshots (sanitized), Card 7 demo/Loom links
+  (currently `#`), CEO sign-off before public.
+
+## 2026-06-13 — Agent Dossier redesign + 3 block-reveal components
+
+Reworked the Resume "Agent Dossier" to a single "information resolving from cover into clarity"
+language and surfaced the buried work history, per `agent-dossier-build-plan-v2.md`. Library-first as
+always — the reusable reveal pieces ship in the toolkit; the dossier is a portfolio composition.
+
+- **3 new toolkit components (Text category) — block-level reveals** (wrap arbitrary `children`, unlike
+  the string-only `TextReveal`/`DecodeText`). All token-driven, reduced-motion-first, exported +
+  cataloged + playground-demoed. Toolkit now **27 components**.
+  - **`LineStagger`** — fast cascade of direct children as whole units (the fix for the sluggish
+    word-by-word feel). Mirrors `Stagger` + `delayChildren` and a `from: 'up'|'down'|'none'`.
+  - **`RedactionWipe`** — censor bars wipe off each child (`scaleX→0`, anchored right, accent leading
+    edge); the "declassify" beat. Reduced motion → bars never rendered.
+  - **`ScanlineReveal`** — a scan line sweeps top→bottom while children develop dim→full trailing it.
+    Used as the dossier's body treatment.
+  - **Deviation from the handoff doc:** the doc typed `stagger?: number` (seconds); shipped
+    `stagger?: StaggerToken` instead to obey the no-raw-values rule + match `TextReveal`/`Stagger`.
+    Colors (`lineColor`/`barColor`/`edgeColor`) stay free-form string props defaulting to CSS vars.
+- **DossierCard reworked** (`apps/portfolio/.../dossier/DossierCard.tsx`):
+  - Body copy (front "about", back mission-log bullets) now develops via `ScanlineReveal`; back
+    role/org/section-labels scramble via `DecodeText` (were plain text); chips/badges/tools cascade via
+    `LineStagger`; stats keep `AnimatedNumber`; radar pulled **out** of the `Reveal` fade so its draw-on
+    is visible (the fade was masking it).
+  - **Back re-mounts on every open** (`key={openCount}` gated on `flipped`) so the decrypt re-runs each
+    flip; back content isn't mounted until flipped (no reveals firing behind the hidden face).
+  - **Front DECRYPT FILE CTA band** replaces the quiet bottom flip-cue: a data-derived one-line career
+    summary + a pulsing `DecryptButton` (app-local, not in the library) that runs scramble
+    (`DECRYPTING…`) → lock-open → `ACCESS GRANTED` → flip. Reduced motion → no pulse/scramble, immediate
+    flip.
+  - **One-time load peek** (`rotateY: [0,16,0]` after 1.2s) hints at the verso; never repeats, skipped
+    if already flipped or under reduced motion.
+- **Exit-intent prompt (page-level).** `DossierCard` made **controllable** (`flipped` +
+  `onFlippedChange`, internal fallback kept). State lifted to `Landing` (`dossierFlipped` /
+  `hasDecrypted`, threaded via `NodeSubpage`). New `ExitIntentPrompt` (dialog, focus-trapped, Esc /
+  backdrop close) fires **at most once per session, only for the résumé scene, only when not yet
+  decrypted, fine-pointer only**, on **two triggers** (Timmy's call): window `mouseleave` at the top
+  edge AND intercepting the `SceneLightbox` `onClose` (since the dossier lives in a scene panel, not a
+  page, closing the scene is the common "leave"). `DECRYPT NOW` flips + closes the prompt; `Leave
+  anyway` closes the scene; `Esc`/backdrop cancels.
+
+## 2026-06-13 — Hydration fix, reduced-motion showcase, stacking-cards case study
+
+- **SceneLightbox hydration mismatch (root cause + fix).** The camera layers (`far`/`near`) fed
+  MotionValue-driven transforms (`scale`/`opacity`/`filter`) into `style`. Motion serializes those as
+  `transform:none` on the server but re-serializes them differently on the first client render → a
+  hydration warning on the layers' `style`. Fix: a client-mount gate (`hydrated`) — the MotionValue
+  styles attach only after mount; SSR + first render emit just the static layout. Kept the elements as
+  `motion.div` (swapping to a plain `<div>` would remount `near`/`far` and reset the orbit). Verified:
+  `transform:none` no longer appears in the SSR HTML; both camera layers still render.
+- **SSR-unsafe output → gate behind `useMounted` (now a convention + shared hook).** A second
+  hydration warning traced to `OrbitSystem`: its starfield/halo/path `<span>`s and cards write
+  full-precision floats (size- and animation-clock-derived) into inline `style` during SSR; the
+  server serializes them lossily (`2.16077px`) vs the client's raw float → a per-span mismatch. Not
+  `Math.random()` — the field is deterministic trig. Root cause is structural: the orbit's geometry
+  comes from a guessed stage size that `ResizeObserver` only corrects post-mount, so the SSR'd orbit
+  is always throwaway markup. Fix: gate the three animated layers on a `mounted` flag (static title
+  still SSR'd); server + first client render emit an identical title-only tree → hydration matches,
+  orbit mounts in one frame later (same timing the animation already had). **Generalized the pattern
+  the provider already inlined into a shared `useMounted()` hook** (`hooks/use-mounted.ts`, exported;
+  `provider.tsx` refactored to use it) with a docstring naming the failure modes. **Rule going
+  forward:** any output derived from measurement (element size), time (rAF/`Date.now()`), or
+  `Math.random()` must be gated behind `useMounted` so SSR + first render stay deterministic. Verified:
+  SSR HTML has zero float-positioned spans; title still renders; typecheck + compile clean.
+- **Portfolio plays full motion by design.** The "Resume isn't scrambling / no image-wipe" report was
+  system-wide `prefers-reduced-motion`, not a bug — every component took its reduced fallback. The
+  portfolio `MotionProvider` already sets `reducedMotion={false}` ([Landing.tsx:46]) so the showcase
+  plays its full motion regardless; the symptom was a stale dev bundle (needs clean `.next` + hard
+  refresh). `DecodeText`/`ImageReveal` code was correct.
+- **Case study redesign → stacking cards (replaces the "space journey").** The scroll journey
+  (starfield + flight-path) was too heavy. New mechanic: each step is a card that pins (`position:
+  sticky`) while the next scrolls up and overlaps it, scaling the covered card down. Per the
+  library-first rule this shipped as a new toolkit component:
+  - **`ScrollStack`** (Scroll-driven) — generic sticky stacking-cards scroller; props `root`,
+    `topOffset`, `gap`, `scaleStep`. Last card stays full size; reverses on scroll-up. Reduced motion →
+    plain vertical stack. Exported + cataloged + playground demo. Toolkit now **24 components**.
+  - **`CaseStudyJourney`** rewritten (same filename/export) to compose `ScrollStack`: briefing hero
+    (outcome up front) + one `StepCard` per step, with `TextReveal`/`Reveal` scroll reveals and count-up
+    on numeric-leading metrics. Quiet gradient backdrop only (starfield/flight-path removed).
+  - Data renamed in `caseStudies.ts`: `stops → steps`, `CaseStudyStop → CaseStudyStep`, `StopKind →
+    StepKind` (both instances). Content still placeholder.
+
+## 2026-06-12 — Node subpages + three new library components
+
+Each orbiting node now opens into a distinct, real subpage (rendered as `SceneLightbox` panel content,
+switched per node by `NodeSubpage` — no routing; the fly/collapse still opens into it). Built one pass.
+
+- **Library-first rule (Timmy):** every new reusable component/variant built for the portfolio ships in
+  the toolkit (export + `catalog.ts` + a playground demo), and the portfolio imports it from
+  `@umbra/motion`. Three new toolkit components from this work:
+  - **`DecodeText`** (Text) — resolves text out of flickering glyphs (a "decrypt" effect); token-driven,
+    reduced-motion → plain text. (Timmy's "AnimatedNumber reveal for words" → reinterpreted as decode.)
+  - **`SkillRadar`** (Data) — hand-built SVG polygon radar; reveal = grid/axes **draw-on** → shape
+    **springs** from center → **sweep** line passes once. Deliberately stylized, not a literal metric.
+  - **`SpiralGallery`** (Continuous & layout) — generic orbiting-spiral index: cards orbit + recycle,
+    wheel boosts the orbit, hover eases it to a stop (catchability), + a list fallback, legend, featured
+    markers. Reduced motion / mobile → list.
+- **Subpages (portfolio compositions over the library pieces):** Resume → **Agent Dossier** flip card
+  (ImageReveal photo, DecodeText codename/name/status, AnimatedNumber stats, SkillRadar; back = Mission
+  Log + Credentials/Loadout tabs). Automations → **AutomationsSpiral** (wraps `SpiralGallery`). Umbra +
+  Meeting OS → **CaseStudyJourney** (one scroll template, two data instances): briefing outcome up front,
+  per-stop reveals over a sticky parallax starfield + a flight-path marker that tracks scroll; reduced
+  motion → a plain readable document.
+- **`SceneLightbox` plumbing:** added `onClosed` (fires when the close finishes) and a `useScenePanelRef()`
+  hook exposing the panel's scroll container, so subpages scope Motion `useScroll`/`SmoothScroll`/inView
+  `root` to the panel. Content wrapper now `minHeight:100%` (was `height:100%`) so tall journeys scroll.
+- **Deselect-on-exit fix:** the close focus-restore re-fired the orbit card's `onFocus → setHover`,
+  re-pausing the orbit. Fixed with a ~350ms suppress-hover window after close (+ `onClosed` clears the
+  active node). Orbit now resumes after exiting.
+- Content is placeholder (in `app/_data/{dossier,systems,caseStudies}.ts`); real copy/photo/PDF + a
+  `public/` photo/PDF drop in later. Toolkit now 23 components.
+
+## 2026-06-12 — Cinematic node-open transitions: a `SceneLightbox` component
+
+The portfolio nodes' open animation reads as a flat popup (only the panel moves). Replaced it with two
+scene-coupled transitions that move the *whole scene*, shipped as a new toolkit component.
+
+- **`SceneLightbox`, a new component — not an extension of `Lightbox`.** `flythrough` (the camera flies
+  into the node with `near`/`far` parallax) and `collapse` (the orbit spins up, contracts to center,
+  beats, then the node blooms out as the others scatter) can't be done by a generic overlay. So
+  `SceneLightbox` owns one eased `progress` MotionValue that drives the panel FLIP, the camera layers,
+  and — via a `useSceneTransition()` context — the host scene. Close always plays the open in reverse.
+- **Token rule preserved.** All timing (duration/easing/spring) comes from the active preset; only
+  spatial/choreography constants (scale targets, phase fractions, blur) are literals, kept in one config
+  object per variant. Reduced motion → a soft `duration.fast` crossfade, no camera/orbit motion.
+- **`Lightbox` (expand/zoom) stays** for simple card→panel uses. Portfolio nodes now use `flythrough`×2
+  + `collapse`×2 — `zoom` is superseded by `flythrough`; `expand` is kept in the library but unused on
+  nodes (per Timmy: "flythrough is what I wanted zoom to do").
+- **Required root-cause fixes** (else the transition fights the orbit): the orbit's rAF loop is parked
+  while a node is opening/open (re-renders off `progress` instead) and resumes with `elapsed` intact;
+  the panel FLIPs off the clicked card's captured rect, never the React-rewritten orbit element.
+- **Testable in the design tool:** the playground `SceneLightbox` demo ships a self-contained mini-orbit
+  scene (starfield `far` + 4 cards `near` that read `useSceneTransition`) so flythrough/collapse show.
+- **Minor orbit fix:** dotted node-orbit path dots now sit in a z-band below the cards and fade out near
+  each node (smoothstep on angular distance), so they only show along the arcs between nodes.
+
+## 2026-06-12 — Edit pass round 1, variant system, and the portfolio MVP
+
+A large session across three tracks. Highlights:
+
+- **Duration scale → 4 tokens, slower.** Dropped `instant`; `DurationToken = fast|base|slow|cinematic`.
+  calm `220/520/1000/1700`, expressive `180/440/850/1450` (was 5 tokens, too tight + not slow enough).
+  System-wide; tests + playground `DURATIONS` updated. StatBar now defaults to `cinematic`.
+- **Two diagnosed bugs fixed.** (1) `Reveal` slide offset persisted when switching variant without a
+  remount → every variant's `animate` now returns the full neutral target `{opacity,x:0,y:0,scale:1}`.
+  (2) Scroll demos were flaky inside the playground's `overflow-auto` box (window-viewport
+  `whileInView`) → added an optional scroll **`root`** to Reveal/ImageReveal/TextReveal/Stagger/
+  AnimatedNumber/StatBar (and StickyScene/SmoothScroll got `root`/`container`), threaded the box ref
+  through the registry. Fires + resets reliably now.
+- **Backgrounds reworked.** New **`Aurora`** component (northern-lights vertical light curtains,
+  `screen` blend, `interaction: auto|cursor|scroll`). `AnimatedGradient` rebuilt with the same
+  interaction modes + livelier default drift. `GrainOverlay` flicker made perceptible (noise as a CSS
+  mask over a `color` tint; stepped mask-position keyframe). **`DotGrid` → constellation by default**
+  (drifting particles linking to neighbours + the cursor) with a `variant: 'constellation' | 'dots'`
+  fallback + editable color/gap/linkDistance. `BeamGrid` got more, glowing, varied beams. Background
+  category is now **5** (Aurora added), just over the soft 2–4 cap — accepted.
+- **Playground legibility.** Per-component `note`s; contained StickyScene + SmoothScroll demos;
+  Magnetic hit-area made visible; Marquee width contained; easing-editor handles clipped to the box;
+  button hover-glow; MotionProvider demo now a looping cluster that visibly re-feels on preset flip.
+- **Variant system (infrastructure).** New third layer: **looks** (`look` prop) + **signatures**
+  (compositions). Rule that keeps "no raw values": a look's **motion = token keys** (still
+  preset-driven); its **visuals = concrete curated values** (looks are the sanctioned home for literal
+  design values; primitives stay neutral). Framework-agnostic visuals (inline style/CSS vars, never
+  Tailwind). Shipped the schema (`looks/looks.schema.ts` + `applyLook`), one reference look
+  (`Reveal.looks.ts` → `editorial`) wired into `Reveal`'s new `look` prop, a worked signature
+  (`signatures/HeroTitle.tsx`), and catalog support (`looks?` field + a **Signatures** category). The
+  concrete look library is deferred — Timmy is designing it.
+- **Portfolio MVP (parallel track, the dogfooding surface).** Landing page only: a deep-space hero
+  where four project **notecards** (Résumé · Umbra · Meeting OS [Coda ops] · Automations) orbit a
+  central **"Timmy's Portfolio"** title on a diagonal ring, passing in front of and behind it (depth
+  via scale/opacity/z-order); hover selects + freezes. Built from real Umbra backgrounds (Aurora +
+  constellation DotGrid + GrainOverlay) — proving the toolkit. **Deep-space-minimal** default with a
+  bottom **Minimal ⇄ Aurora** toggle (also flips the motion preset calm↔expressive). Brief: Timmy is
+  job-hunting in **business tech / systems / automation** (Make, Zapier, Coda, n8n). Fonts: Sora /
+  Hanken Grotesk / JetBrains Mono. Placeholders remain (surname, final project names, node links).
+
 ## 2026-06-10 — Duration scale re-spaced + resettable scroll demos
 
 - **Wider duration steps.** The old scale was too tight to tell `fast`/`base`/`slow` apart and `slow`

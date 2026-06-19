@@ -13,7 +13,7 @@ describe('motion presets', () => {
   it('every preset is a complete token set', () => {
     for (const name of presetNames) {
       const t = presets[name];
-      expect(Object.keys(t.duration)).toEqual(['instant', 'fast', 'base', 'slow', 'cinematic']);
+      expect(Object.keys(t.duration)).toEqual(['fast', 'base', 'slow', 'cinematic', 'epic']);
       expect(Object.keys(t.easing)).toEqual(['standard', 'entrance', 'exit', 'emphasized']);
       expect(Object.keys(t.spring)).toEqual(['gentle', 'snappy', 'bouncy']);
       expect(Object.keys(t.stagger)).toEqual(['tight', 'base', 'loose']);
@@ -23,11 +23,11 @@ describe('motion presets', () => {
 
   it('durations are ordered ascending within each preset', () => {
     for (const name of presetNames) {
-      const { instant, fast, base, slow, cinematic } = presets[name].duration;
-      expect(instant).toBeLessThan(fast);
+      const { fast, base, slow, cinematic, epic } = presets[name].duration;
       expect(fast).toBeLessThan(base);
       expect(base).toBeLessThan(slow);
       expect(slow).toBeLessThan(cinematic);
+      expect(cinematic).toBeLessThan(epic);
     }
   });
 
@@ -52,7 +52,7 @@ describe('motion presets', () => {
 describe('motionVars (CSS variables)', () => {
   it('emits unit-tagged custom properties and omits springs', () => {
     const vars = motionVars(presets.calm) as Record<string, string>;
-    expect(vars['--umbra-duration-base']).toBe('400ms');
+    expect(vars['--umbra-duration-base']).toBe('520ms');
     expect(vars['--umbra-distance-base']).toBe('22px');
     expect(vars['--umbra-stagger-base']).toBe('130ms');
     expect(vars['--umbra-ease-standard']).toBe('cubic-bezier(0.4, 0, 0.2, 1)');
@@ -80,6 +80,14 @@ describe('resolveReveal (token + reduced-motion resolution)', () => {
     const r = resolveReveal(tokens, false, { variant: 'scale', distance: 'dramatic' });
     expect((r.initial as { scale: number }).scale).toBeLessThan(1);
     expect(r.animate).toMatchObject({ scale: 1 });
+  });
+
+  it('every variant settles to the same neutral target (so switching variant re-centers)', () => {
+    for (const variant of ['fade', 'slide', 'scale'] as const) {
+      const r = resolveReveal(tokens, false, { variant, from: 'left', distance: 'dramatic' });
+      // `animate` resets every transformed property — a fade must zero any leftover slide offset.
+      expect(r.animate).toMatchObject({ opacity: 1, x: 0, y: 0, scale: 1 });
+    }
   });
 
   it('every variant collapses to an opacity-only fade under reduced motion', () => {

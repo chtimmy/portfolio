@@ -14,13 +14,17 @@ export type CategoryId =
   | 'data'
   | 'continuous'
   | 'navigation'
-  | 'orchestration';
+  | 'overlay'
+  | 'orchestration'
+  | 'signatures';
 
 export interface CatalogComponent {
   /** Exported component name. */
   name: string;
   /** One-line description of what it does / when to use it. */
   summary: string;
+  /** Named looks (variant system) available on this component, if any. */
+  looks?: string[];
 }
 
 export interface Category {
@@ -38,7 +42,7 @@ export const catalog: Category[] = [
     title: 'Entrance & reveal',
     tagline: 'How elements appear.',
     components: [
-      { name: 'Reveal', summary: 'Scroll- or mount-triggered fade / slide / scale entrance.' },
+      { name: 'Reveal', summary: 'Scroll- or mount-triggered fade / slide / scale entrance.', looks: ['editorial'] },
       { name: 'ImageReveal', summary: 'Clip-path wipe for images and media.' },
     ],
   },
@@ -49,6 +53,10 @@ export const catalog: Category[] = [
     components: [
       { name: 'TextReveal', summary: 'Split by character / word / line, staggered in.' },
       { name: 'RotatingText', summary: 'Cycles a word in a sentence in place.' },
+      { name: 'DecodeText', summary: 'Resolves text out of flickering glyphs — a decrypt effect.' },
+      { name: 'LineStagger', summary: 'Cascades child blocks/lines in as whole units — a fast block reveal.' },
+      { name: 'RedactionWipe', summary: 'Censor bars wipe off the children — a declassify reveal.' },
+      { name: 'ScanlineReveal', summary: 'A scan line sweeps past; children develop dim → full behind it.' },
     ],
   },
   {
@@ -59,6 +67,7 @@ export const catalog: Category[] = [
       { name: 'Parallax', summary: 'Layers move at different speeds for depth.' },
       { name: 'ScrollProgress', summary: 'Reading-progress bar pinned to the viewport edge.' },
       { name: 'StickyScene', summary: 'Pins a scene and scrolls its content sideways.' },
+      { name: 'ScrollStack', summary: 'Sticky stacking cards — each pins as the next overlaps and scales it down.' },
     ],
   },
   {
@@ -68,6 +77,7 @@ export const catalog: Category[] = [
     components: [
       { name: 'Magnetic', summary: 'Element is pulled toward the cursor.' },
       { name: 'TiltCard', summary: 'Pointer-tracked 3D tilt.' },
+      { name: 'OutlineTrace', summary: 'Draws an outline tracing the element’s border on hover.' },
     ],
   },
   {
@@ -75,9 +85,10 @@ export const catalog: Category[] = [
     title: 'Background & ambient',
     tagline: 'How the page breathes.',
     components: [
-      { name: 'AnimatedGradient', summary: 'Slowly drifting aurora/mesh gradient.' },
+      { name: 'AnimatedGradient', summary: 'Drifting mesh gradient; can follow cursor or scroll.' },
+      { name: 'Aurora', summary: 'Northern-lights light curtains that sway and shimmer.' },
       { name: 'GrainOverlay', summary: 'Subtle filmic noise texture.' },
-      { name: 'DotGrid', summary: 'Canvas dot field that reacts to the cursor.' },
+      { name: 'DotGrid', summary: 'Constellation / dot field that links near the cursor.' },
       { name: 'BeamGrid', summary: 'Faint grid with light beams tracing across it.' },
     ],
   },
@@ -88,6 +99,7 @@ export const catalog: Category[] = [
     components: [
       { name: 'AnimatedNumber', summary: 'Counts up to a value on view.' },
       { name: 'StatBar', summary: 'Animated progress / percentage bar.' },
+      { name: 'SkillRadar', summary: 'Stylized polygon radar that draws on and springs out.' },
     ],
   },
   {
@@ -97,6 +109,7 @@ export const catalog: Category[] = [
     components: [
       { name: 'Marquee', summary: 'Infinite scrolling strip (logos, tech-stack lists).' },
       { name: 'Accordion', summary: 'Spring-physics expand / collapse.' },
+      { name: 'SpiralGallery', summary: 'Cards orbit a spiral index; wheel-driven, with a list fallback.' },
     ],
   },
   {
@@ -108,12 +121,32 @@ export const catalog: Category[] = [
     ],
   },
   {
+    id: 'overlay',
+    title: 'Overlay',
+    tagline: 'Opening focused views over the page.',
+    components: [
+      { name: 'Lightbox', summary: 'Opens a card into a fullscreen panel (expand or zoom).' },
+      {
+        name: 'SceneLightbox',
+        summary: 'Opens a node into a fullscreen panel while the scene flies in or collapses behind it.',
+      },
+    ],
+  },
+  {
     id: 'orchestration',
     title: 'Orchestration',
     tagline: 'Toolkit core that powers the rest.',
     components: [
       { name: 'Stagger', summary: 'Cascades any children into view.' },
       { name: 'MotionProvider', summary: 'Injects the active preset (context + CSS vars).' },
+    ],
+  },
+  {
+    id: 'signatures',
+    title: 'Signatures',
+    tagline: 'Opinionated compositions — the personal design layer (in progress).',
+    components: [
+      { name: 'HeroTitle', summary: 'Composed hero entrance (TextReveal + Reveal). Seed of the signatures layer.' },
     ],
   },
 ];

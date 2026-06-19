@@ -65,7 +65,7 @@ export function PropControls({ controls, values, onChange, accent, tokens, onTok
 }
 
 const SCALE_RANGE: Record<Exclude<TokenScale, 'easing'>, { min: number; max: number; step: number; unit: string }> = {
-  duration: { min: 0, max: 1400, step: 10, unit: 'ms' },
+  duration: { min: 0, max: 1800, step: 10, unit: 'ms' },
   distance: { min: 0, max: 120, step: 1, unit: 'px' },
   stagger: { min: 0, max: 300, step: 5, unit: 'ms' },
 };
@@ -95,7 +95,7 @@ function TokenValueEditor({
         {open ? '▾' : '▸'} value of {scale}.{tokenKey}
       </button>
       {open && (
-        <div className="mt-2 rounded-md border border-[color:var(--color-line)] bg-white/60 p-3">
+        <div className="mt-2 overflow-hidden rounded-md border border-[color:var(--color-line)] bg-white/60 p-3">
           {scale === 'easing' ? (
             <EasingEditor
               value={tokens.easing[tokenKey as keyof MotionTokens['easing']]}

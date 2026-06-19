@@ -2,6 +2,7 @@
 
 import { motion } from 'motion/react';
 import type { Transition } from 'motion/react';
+import type { RefObject } from 'react';
 import type { DurationToken, EasingToken } from '../tokens/tokens.schema';
 import { useMotionTokens, useReducedMotion } from '../provider';
 import { clamp } from '../utils/clamp';
@@ -22,6 +23,8 @@ export interface StatBarProps {
   /** Fill when scrolled into view (default) or on mount. */
   trigger?: 'inView' | 'mount';
   once?: boolean;
+  /** For `inView`: a scrollable ancestor to track instead of the window viewport. */
+  root?: RefObject<HTMLElement | null>;
   className?: string;
 }
 
@@ -33,12 +36,13 @@ export function StatBar({
   value,
   label,
   showValue = true,
-  duration = 'slow',
+  duration = 'cinematic',
   easing = 'entrance',
   color = 'currentColor',
   thickness = 8,
   trigger = 'inView',
   once = true,
+  root,
   className,
 }: StatBarProps) {
   const tokens = useMotionTokens();
@@ -54,7 +58,7 @@ export function StatBar({
     ? { animate: target }
     : trigger === 'mount'
       ? { animate: target }
-      : { whileInView: target, viewport: { once, amount: 0.6 } };
+      : { whileInView: target, viewport: { once, amount: 0.6, root } };
 
   return (
     <div className={className}>
