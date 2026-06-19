@@ -63,10 +63,10 @@ export function ExitIntentPrompt({ open, onDecrypt, onLeave, onDismiss }: ExitIn
           >
             <div className="u-mono text-[10px] tracking-[0.25em] text-[color:var(--accent)]">DOSSIER // CONFIDENTIAL</div>
             <h2 id="exit-intent-title" className="u-display mt-2 text-2xl font-semibold text-[color:var(--ice)]">
-              Hold on — you haven&apos;t opened the file.
+              Hold on, you haven&apos;t opened the file yet.
             </h2>
             <p className="mt-2 text-[14px] leading-relaxed text-[color:var(--ice)]/80">
-              The mission log — the actual work history — is sealed inside. One click decrypts it.
+              The work experience and background of the subject is sealed inside. Decrypt to view it.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button

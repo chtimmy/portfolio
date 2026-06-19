@@ -77,8 +77,12 @@ export function useScenePanelRef(): RefObject<HTMLDivElement | null> | null {
 export interface SceneLightboxProps {
   /** Whether the overlay is open (controlled by the host). */
   open: boolean;
-  /** Called when the overlay requests to close (✕, Esc, backdrop, browser Back). */
-  onClose: () => void;
+  /**
+   * Called when the overlay requests to close (✕, Esc, backdrop, browser Back).
+   * Return `false` to veto the close — the overlay stays open and the browser
+   * back-stack is left untouched (e.g. to show a confirm-before-leave prompt).
+   */
+  onClose: () => void | boolean;
   /** Called once the close animation has fully finished (state → closed) — e.g. to deselect the node. */
   onClosed?: () => void;
   /** The clicked element's viewport rect, captured by the host at click time. Drives the FLIP morph. */
@@ -300,24 +304,34 @@ function ScenePanel({
   surface: string;
   label?: string;
   reduced: boolean;
-  onClose: () => void;
+  onClose: () => void | boolean;
   children: ReactNode;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
-  const requestClose = () => {
-    onCloseRef.current();
-    if (typeof window !== 'undefined' && (window.history.state as { umbraScene?: boolean } | null)?.umbraScene) {
-      window.history.back();
+  // `fromPop` = the request originated from a browser Back (popstate already
+  // consumed our pushed entry); otherwise it's a ✕ / Esc / backdrop click.
+  const requestClose = (fromPop = false) => {
+    const vetoed = onCloseRef.current() === false;
+    const hasState =
+      typeof window !== 'undefined' &&
+      (window.history.state as { umbraScene?: boolean } | null)?.umbraScene;
+    if (vetoed) {
+      // Host kept the overlay open (e.g. a confirm prompt). Don't sync history.
+      // If the browser already popped our entry, re-push it so a later Back
+      // still routes through onClose instead of leaving the page.
+      if (fromPop) window.history.pushState({ umbraScene: true }, '');
+      return;
     }
+    if (!fromPop && hasState) window.history.back();
   };
 
   useEffect(() => {
     const prevFocus = document.activeElement as HTMLElement | null;
     window.history.pushState({ umbraScene: true }, '');
-    const onPop = () => onCloseRef.current();
+    const onPop = () => requestClose(true);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') requestClose();
     };
@@ -381,7 +395,7 @@ function ScenePanel({
     <>
       <motion.div
         aria-hidden
-        onClick={requestClose}
+        onClick={() => requestClose()}
         style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'rgba(4,5,10,1)', opacity: backdropOpacity, backdropFilter: 'blur(6px)' }}
       />
       <motion.div
@@ -403,7 +417,7 @@ function ScenePanel({
           away. As a portal-level sibling it's truly viewport-fixed — pinned top-right at any scroll. */}
       <motion.button
         type="button"
-        onClick={requestClose}
+        onClick={() => requestClose()}
         aria-label="Close"
         style={{
           position: 'fixed',

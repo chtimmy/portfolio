@@ -96,13 +96,15 @@ export function Landing() {
   );
 
   // SceneLightbox requested close (✕ / Esc / backdrop / Back) — intercept for an undecrypted dossier.
+  // Returning `false` vetoes the close, so SceneLightbox keeps the scene open behind the prompt.
   const requestClose = () => {
     if (shouldPrompt()) {
       promptShown.current = true;
       setPromptOpen(true);
-    } else {
-      setOpenId(null);
+      return false;
     }
+    setOpenId(null);
+    return true;
   };
 
   // Window exit-intent (desktop / fine pointer only): cursor leaving the top edge of the viewport.
