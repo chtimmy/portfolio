@@ -201,15 +201,12 @@ function CardFront({
   return (
     <>
       <StampBar right="FILE 001" />
-      {/* One slow scan develops the whole front. */}
-      <ScanlineReveal
-        trigger="mount"
-        duration="epic"
-        stagger="loose"
-        glow
-        className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8"
-      >
-        {/* identity */}
+      {/* Scroll container is a plain div (the ScanlineReveal sits inside it) — the same pattern the
+          back uses, so the front scrolls reliably and its scan develops the full content like the back. */}
+      <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
+        {/* One slow scan develops the whole front. */}
+        <ScanlineReveal trigger="mount" duration="epic" stagger="loose" glow className="flex flex-col gap-6">
+          {/* identity */}
         <div className="flex flex-col gap-5 sm:flex-row">
           <img
             src={data.photoUrl}
@@ -260,7 +257,8 @@ function CardFront({
             <SkillRadar data={data.softSkills} trigger="mount" size={260} />
           </div>
         </div>
-      </ScanlineReveal>
+        </ScanlineReveal>
+      </div>
 
       <DecryptBand onFlip={onFlip} decrypted={decrypted} />
     </>
