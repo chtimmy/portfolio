@@ -234,7 +234,7 @@ function ImageFlip({
   if (!front || !back) return <ImageGrid items={items} />;
 
   return (
-    <figure className="m-0 mx-auto w-1/2">
+    <figure className="m-0 mx-auto w-full sm:w-1/2">
       <button
         type="button"
         onClick={() => setFlipped((f) => !f)}

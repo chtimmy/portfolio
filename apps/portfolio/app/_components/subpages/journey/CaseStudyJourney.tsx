@@ -20,6 +20,7 @@ import { StepBlocks, splitBlocks } from './StepBlocks';
 import { getIcon } from './icons';
 import { FlightPathProgress } from './FlightPathProgress';
 import { Starfield } from './Starfield';
+import { useIsMobile } from '../../useIsMobile';
 
 // Per-card label for the before/after craft-flip (keyed by the card's beat).
 const TOGGLE_LABEL: Record<string, string> = {
@@ -69,6 +70,10 @@ export function CaseStudyJourney({ slug }: { slug: string }) {
 function CaseStudyJourneyInner({ slug }: { slug: string }) {
   const study = caseStudies[slug];
   const reduced = useReducedMotion();
+  // On phones the pinned stacking crops tall cards (a pinned card taller than the screen can never
+  // reveal its bottom), so render a plain full-height column instead — each card scrolls through
+  // fully before the next. Desktop keeps the stacking effect.
+  const isMobile = useIsMobile();
   const panelRef = useScenePanelRef();
   const rootRef = (panelRef as React.RefObject<HTMLElement>) ?? undefined;
   const fallbackRef = useRef<HTMLElement>(null);
@@ -166,18 +171,33 @@ function CaseStudyJourneyInner({ slug }: { slug: string }) {
         {/* stacking cards — one per step */}
         <div className="px-4 pb-[8vh] md:px-8">
           <div className="mx-auto w-full max-w-3xl">
-            <ScrollStack root={root} topOffset={28} gap={10} scaleStep={0.03} minCardHeight="74vh">
-              {study.steps.map((step, i) => (
-                <StepCard
-                  key={step.kind + i}
-                  step={step}
-                  index={i}
-                  total={study.steps.length}
-                  root={rootRef}
-                  reduced={reduced}
-                />
-              ))}
-            </ScrollStack>
+            {isMobile ? (
+              <div className="flex flex-col gap-6">
+                {study.steps.map((step, i) => (
+                  <StepCard
+                    key={step.kind + i}
+                    step={step}
+                    index={i}
+                    total={study.steps.length}
+                    root={rootRef}
+                    reduced={reduced}
+                  />
+                ))}
+              </div>
+            ) : (
+              <ScrollStack root={root} topOffset={28} gap={10} scaleStep={0.03} minCardHeight="74vh">
+                {study.steps.map((step, i) => (
+                  <StepCard
+                    key={step.kind + i}
+                    step={step}
+                    index={i}
+                    total={study.steps.length}
+                    root={rootRef}
+                    reduced={reduced}
+                  />
+                ))}
+              </ScrollStack>
+            )}
           </div>
         </div>
       </div>

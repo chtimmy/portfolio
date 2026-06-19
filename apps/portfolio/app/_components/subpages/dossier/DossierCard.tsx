@@ -12,6 +12,7 @@ import {
 } from '@umbra/motion';
 import { dossier } from '../../../_data/dossier';
 import type { DossierContact, DossierData } from '../../../_data/dossier';
+import { useIsMobile } from '../../useIsMobile';
 
 export interface DossierCardProps {
   data?: DossierData;
@@ -31,6 +32,7 @@ export interface DossierCardProps {
  */
 export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedChange }: DossierCardProps) {
   const reduced = useReducedMotion();
+  const isMobile = useIsMobile();
   // Inside a SceneLightbox the panel mounts at the *start* of the open transition (while still
   // invisible), so front `trigger="mount"` reveals would fire and finish before the card is seen.
   // Latch a `ready` flag on the scene reaching `open` (or immediately when there's no scene, e.g. the
@@ -70,7 +72,7 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
           onAnimationComplete={() => setBackReady(flipped)} // flip settled: true on the back, false on the front
           style={{ transformStyle: 'preserve-3d', position: 'relative', height: 'min(86vh, 760px)' }}
         >
-          <Face>
+          <Face solid={isMobile}>
             {/* Gated so the front's reveals fire only once the scene is open + visible (see `ready`). */}
             {ready ? (
               <CardFront data={data} onFlip={() => setFlipped(true)} decrypted={decrypted} />
@@ -78,7 +80,7 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
               <FrontPlaceholder />
             )}
           </Face>
-          <Face back>
+          <Face back solid={isMobile}>
             {/* Gated on the flip finishing (`backReady`) + keyed so the scan starts fresh, facing the viewer. */}
             {flipped && backReady ? (
               <CardBack key={openCount} data={data} onFlip={() => setFlipped(false)} />
@@ -92,7 +94,16 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
   );
 }
 
-function Face({ children, back }: { children: React.ReactNode; back?: boolean }) {
+function Face({
+  children,
+  back,
+  solid,
+}: {
+  children: React.ReactNode;
+  back?: boolean;
+  /** Mobile hardening against front-face bleed-through: opaque face + its own backface guard. */
+  solid?: boolean;
+}) {
   return (
     <div
       style={{
@@ -107,7 +118,13 @@ function Face({ children, back }: { children: React.ReactNode; back?: boolean })
       <div
         className="flex h-full flex-col overflow-hidden rounded-2xl"
         style={{
-          background: 'color-mix(in srgb, var(--deep) 92%, transparent)',
+          // The inner content needs its own backface guard so a browser that renders it in 3D can't
+          // show the (mirrored) front through the back; on mobile an opaque face removes any residual
+          // see-through, and translateZ(0) gives each face its own compositing layer.
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          transform: solid ? 'translateZ(0)' : undefined,
+          background: solid ? 'var(--deep)' : 'color-mix(in srgb, var(--deep) 92%, transparent)',
           border: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)',
           boxShadow: '0 30px 80px rgba(0,0,0,0.5)',
         }}
@@ -149,7 +166,7 @@ function CardFront({
         duration="epic"
         stagger="loose"
         glow
-        className="flex flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8"
+        className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8"
       >
         {/* identity */}
         <div className="flex flex-col gap-5 sm:flex-row">
@@ -172,7 +189,7 @@ function CardFront({
               {data.contacts.map((c) => (
                 <ContactChip key={c.label} contact={c} />
               ))}
-              <OutlineTrace className="ml-auto" glow>
+              <OutlineTrace className="order-first ml-0 sm:order-none sm:ml-auto" glow>
                 <a
                   href={data.resumePdfUrl}
                   download="Timmy Lei Resume.pdf"
@@ -198,7 +215,7 @@ function CardFront({
               ))}
             </div>
           </div>
-          <div className="flex items-center justify-center" style={{ color: 'var(--accent)' }}>
+          <div className="hidden items-center justify-center md:flex" style={{ color: 'var(--accent)' }}>
             <SkillRadar data={data.softSkills} trigger="mount" size={260} />
           </div>
         </div>
@@ -300,7 +317,7 @@ function DecryptBand({
     >
       <div className="u-mono text-[11px] leading-relaxed tracking-wide text-[color:var(--muted)]">
         <span>
-          Click to view background <span className="text-[color:var(--accent)]" aria-hidden>→</span>
+          Click to view background <span className="inline-block rotate-90 text-[color:var(--accent)] sm:rotate-0" aria-hidden>→</span>
         </span>
       </div>
       <div className="flex shrink-0 items-center gap-3">
@@ -433,7 +450,7 @@ function CardBack({ data, onFlip }: { data: DossierData; onFlip: () => void }) {
         </TabButton>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 md:p-8" role="tabpanel">
+      <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8" role="tabpanel">
         {tab === 'log' ? (
           // One slow scan line traverses the whole log; each experience entry develops as it passes.
           <ScanlineReveal trigger="mount" duration="epic" stagger="loose" glow className="flex flex-col gap-6">

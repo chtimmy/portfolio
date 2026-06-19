@@ -9,6 +9,7 @@ import {
 } from '@umbra/motion';
 import { projects } from './projects';
 import type { Project } from './projects';
+import { useIsMobile } from './useIsMobile';
 
 const TILT = (-28 * Math.PI) / 180; // node orbit diagonal (bottom-left → top-right)
 const RING_TILT = -TILT; // halo on the opposite diagonal (top-left → bottom-right)
@@ -46,6 +47,10 @@ interface OrbitSystemProps {
  */
 export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
   const reduced = useReducedMotion();
+  // Mobile shrinks the orbit (nodes/dots/cards) to 75% and the text to 80% so the whole signature
+  // sits cleanly within one phone screen. Desktop is untouched.
+  const isMobile = useIsMobile();
+  const nodeScale = isMobile ? 0.75 : 1;
   // The orbit's geometry is derived from the measured stage size and an animation clock — both
   // client-only — and renders full-precision floats into inline styles. SSR'ing it serializes those
   // floats lossily and trips hydration, so the animated layers render only after mount; the server
@@ -120,8 +125,8 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
 
   const t = reduced ? 0 : elapsed.current / 1000;
   // Rounder ellipse (closer rx/ry) so the evenly-spaced nodes read as a clean circular orbit.
-  const rx = size.w * 0.36;
-  const ry = size.h * 0.42;
+  const rx = size.w * 0.36 * nodeScale;
+  const ry = size.h * 0.42 * nodeScale;
   const omega = (Math.PI * 2) / SPEED;
 
   // ── transition sampling ────────────────────────────────────────────────────
@@ -157,13 +162,16 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
       >
         <div
           className="u-display font-semibold tracking-tight text-[color:var(--ice)]"
-          style={{ fontSize: 'clamp(28px, 5vw, 52px)', lineHeight: 1.02 }}
+          style={{
+            fontSize: isMobile ? 'clamp(22px, 4vw, 42px)' : 'clamp(28px, 5vw, 52px)',
+            lineHeight: 1.02,
+          }}
         >
           Timmy’s
           <br />
           Portfolio
         </div>
-        <div className="u-mono mt-3 text-[10px] tracking-[0.2em] text-[color:var(--muted)]">
+        <div className="u-mono mt-3 text-[8px] tracking-[0.2em] text-[color:var(--muted)] sm:text-[10px]">
           a constellation of work, builds, and background
         </div>
       </div>
@@ -175,7 +183,7 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
           {/* 3D constellation halo encircling the title (dots pass in front of & behind it) */}
           {Array.from({ length: RING_COUNT }).map((_, j) => {
             const a = (j * Math.PI * 2) / RING_COUNT - t * ((Math.PI * 2) / 44);
-            const ringRx = Math.min(size.w * 0.27, 220);
+            const ringRx = Math.min(size.w * 0.27, 220) * nodeScale;
             const ringRy = ringRx * 0.5;
             // ellipse rotated onto the opposite diagonal from the node orbit
             const bx = ringRx * Math.cos(a);
@@ -184,7 +192,7 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
             const y = bx * Math.sin(RING_TILT) + by * Math.cos(RING_TILT);
             const depth = Math.sin(a);
             const dn = depth * 0.5 + 0.5;
-            const d = 2 + 2.4 * dn;
+            const d = (2 + 2.4 * dn) * nodeScale;
             return (
               <span
                 key={`ring-${j}`}
@@ -215,7 +223,7 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
             const y = bx * Math.sin(TILT) + by * Math.cos(TILT);
             const depth = Math.sin(theta);
             const dn = depth * 0.5 + 0.5;
-            const d = 2 + 2.8 * dn;
+            const d = (2 + 2.8 * dn) * nodeScale;
             const gap = smoothstep(0.5, 3, stepsToNode(j)); // 0 near a node, 1 mid-gap
             return (
               <span
@@ -319,7 +327,7 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
                     textAlign: 'inherit',
                   }}
                 >
-                  <Notecard project={p_} selected={sel} />
+                  <Notecard project={p_} selected={sel} widthScale={nodeScale} />
                 </button>
               </div>
             );
@@ -330,13 +338,21 @@ export function OrbitSystem({ activeId, onOpen }: OrbitSystemProps) {
   );
 }
 
-function Notecard({ project, selected }: { project: Project; selected: boolean }) {
+function Notecard({
+  project,
+  selected,
+  widthScale = 1,
+}: {
+  project: Project;
+  selected: boolean;
+  widthScale?: number;
+}) {
   const sprocket = 'repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 11px)';
   return (
     <div
       className="relative overflow-hidden rounded-lg backdrop-blur-sm"
       style={{
-        width: 184,
+        width: 184 * widthScale,
         background: 'color-mix(in srgb, var(--deep) 84%, transparent)',
         // outline is always on; it lightens with the card's overall opacity as it orbits behind.
         border: `1px solid ${selected ? 'var(--accent)' : 'color-mix(in srgb, var(--accent) 60%, transparent)'}`,

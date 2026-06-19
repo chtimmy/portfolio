@@ -120,7 +120,7 @@ export function Landing() {
   }, [isResumeOpen, shouldPrompt]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-[100dvh] overflow-hidden">
       {/*
         This portfolio IS a motion showcase, so it deliberately plays its full motion rather than
         collapsing to the reduced-motion fallbacks — otherwise a viewer (or the author) who keeps
@@ -131,7 +131,7 @@ export function Landing() {
         preset={preset}
         reducedMotion={false}
         as="main"
-        className="relative flex min-h-screen flex-col"
+        className="relative flex min-h-[100dvh] flex-col"
       >
         <SceneLightbox
           open={openId != null}
@@ -196,7 +196,7 @@ export function Landing() {
         />
 
         {/* eyebrow (outside the camera so it doesn't fly) */}
-        <header className="u-mono pointer-events-none absolute inset-x-6 top-6 z-20 flex text-[11px] tracking-[0.12em] text-[color:var(--muted)]">
+        <header className="u-mono pointer-events-none absolute inset-x-6 top-6 z-20 hidden text-[11px] tracking-[0.12em] text-[color:var(--muted)] sm:flex">
           <span className="boot flex items-center gap-2">
             <span
               className="inline-block h-1.5 w-1.5 rounded-full"
@@ -209,13 +209,13 @@ export function Landing() {
         {/* thesis (top) — sits between the eyebrow row and the original drop */}
         <div className="pointer-events-none absolute inset-x-0 top-10 z-20 px-6 text-center sm:top-12">
           <h1
-            className="boot u-display text-xl font-semibold tracking-tight text-[color:var(--ice)] sm:text-2xl"
+            className="boot u-display text-base font-semibold tracking-tight text-[color:var(--ice)] sm:text-2xl"
             style={{ animationDelay: '0.1s' }}
           >
             Systems That Keep Businesses in Motion
           </h1>
           <p
-            className="boot u-mono mt-2 text-[11px] tracking-[0.15em] text-[color:var(--muted)]"
+            className="boot u-mono mt-2 text-[9px] tracking-[0.15em] text-[color:var(--muted)] sm:text-[11px]"
             style={{ animationDelay: '0.35s' }}
           >
             click a file to learn more
@@ -228,7 +228,7 @@ export function Landing() {
             <button
               type="button"
               onClick={copyEmail}
-              className="u-mono cursor-pointer text-[11px] tracking-wider text-[color:var(--muted)] transition-colors hover:text-[color:var(--ice)]"
+              className="u-mono cursor-pointer text-[9px] tracking-wider text-[color:var(--muted)] transition-colors hover:text-[color:var(--ice)] sm:text-[11px]"
             >
               Contact: {EMAIL}
             </button>

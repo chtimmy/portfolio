@@ -7,6 +7,18 @@ import type { SystemCard } from '../../../_data/systems';
 import { BentoCard } from './BentoCard';
 import { ExpandedCard } from './ExpandedCard';
 import { Legend } from './Legend';
+import { useIsMobile } from '../../useIsMobile';
+
+// Mobile reading order (single column). Desktop ignores this — it's positioned by `LG_PLACEMENT`.
+const MOBILE_ORDER = [
+  'daytrading-agent',
+  'meeting-intelligence',
+  'lead-to-outreach',
+  'client-tracker',
+  'meeting-error-detection',
+  'finance-tracker',
+  'sheet-cleaner',
+];
 
 /**
  * The Systems Library scene: a header band (rotating eyebrow + title + legend) above a static
@@ -17,6 +29,10 @@ import { Legend } from './Legend';
 export function SystemsBento() {
   // The open card + the grid cell it was clicked from (drives the flip→expand morph).
   const [selected, setSelected] = useState<{ card: SystemCard; rect: DOMRect } | null>(null);
+  const isMobile = useIsMobile();
+  const ordered = isMobile
+    ? [...systems].sort((a, b) => MOBILE_ORDER.indexOf(a.id) - MOBILE_ORDER.indexOf(b.id))
+    : systems;
 
   return (
     <div className="absolute inset-0 flex flex-col">
@@ -47,9 +63,9 @@ export function SystemsBento() {
 
       {/* Grid area — fills the rest. Desktop: a fixed 4×3 that fits without scrolling. Tablet/mobile:
           fewer columns, natural height, scrolls. */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-28 pt-5 sm:px-6 sm:py-5">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-3.5 sm:grid-cols-2 lg:h-full lg:grid-cols-4 lg:grid-rows-3">
-          {systems.map((card) => (
+          {ordered.map((card) => (
             <BentoCard key={card.id} card={card} onSelect={(rect) => setSelected({ card, rect })} />
           ))}
         </div>
