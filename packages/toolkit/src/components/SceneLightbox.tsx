@@ -239,9 +239,7 @@ export function SceneLightbox({
           style={{
             position: 'absolute',
             inset: 0,
-            // Only promote to a GPU layer while the scene is actually animating; a permanently-promoted
-            // viewport-sized layer at rest causes a first-paint raster gap (a green strip on the landing).
-            willChange: state === 'closed' ? 'auto' : 'transform',
+            willChange: 'transform',
             // MotionValue transforms attach only after mount — see `hydrated` above.
             ...(hydrated ? { scale: farScale, opacity: farOpacity, transformOrigin: cameraOrigin } : null),
           }}
@@ -256,7 +254,7 @@ export function SceneLightbox({
             inset: 0,
             display: 'grid',
             placeItems: 'center',
-            willChange: state === 'closed' ? 'auto' : 'transform',
+            willChange: 'transform',
             // pointer-transparent so the cursor reaches the `far` backdrop (e.g. a DotGrid that tracks
             // the pointer); interactive children opt back in with their own `pointer-events: auto`.
             pointerEvents: 'none',

@@ -44,29 +44,6 @@ export function Landing() {
   }, []);
   useEffect(() => () => void (copyTimer.current && clearTimeout(copyTimer.current)), []);
 
-  // Custom-themed Chrome profiles paint the window color in a strip at the bottom of the viewport on
-  // first load; it only clears when the page next re-lays-out (a tab open/close). It survives every
-  // color/paint fix and persists even with GPU acceleration off — so the one remaining lever is to
-  // force a real geometry re-layout ourselves (which is what the tab-toggle does). Briefly nudge the
-  // document height to trigger a reflow shortly after first paint, and again once late layout settles.
-  useEffect(() => {
-    const forceRelayout = () => {
-      const html = document.documentElement;
-      const prev = html.style.minHeight;
-      html.style.minHeight = 'calc(100dvh + 1px)'; // change geometry → forces a reflow
-      void html.offsetHeight; // flush layout synchronously
-      html.style.minHeight = prev;
-      void html.offsetHeight;
-      window.dispatchEvent(new Event('resize'));
-    };
-    const raf = requestAnimationFrame(() => requestAnimationFrame(forceRelayout));
-    const t = setTimeout(forceRelayout, 250); // re-run after fonts/late layout settle
-    return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(t);
-    };
-  }, []);
-
   // Dossier exit-intent: track whether the résumé file has been decrypted (flipped) and prompt a viewer
   // who tries to leave the scene — or the window — without opening it. Fires at most once per session.
   const [dossierFlipped, setDossierFlipped] = useState(false);
