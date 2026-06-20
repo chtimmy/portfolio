@@ -102,7 +102,7 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
             height: isMobile ? 'min(88dvh, 760px)' : 'min(86vh, 760px)',
           }}
         >
-          <Face solid={isMobile} opacity={isMobile ? frontOpacity : undefined}>
+          <Face solid={isMobile} opacity={isMobile ? frontOpacity : undefined} inactive={isMobile && flipped} zIndex={isMobile ? (flipped ? 1 : 2) : undefined}>
             {/* Gated so the front's reveals fire only once the scene is open + visible (see `ready`). */}
             {ready ? (
               <CardFront data={data} onFlip={() => setFlipped(true)} decrypted={decrypted} />
@@ -110,7 +110,7 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
               <FrontPlaceholder />
             )}
           </Face>
-          <Face back solid={isMobile} opacity={isMobile ? backOpacity : undefined}>
+          <Face back solid={isMobile} opacity={isMobile ? backOpacity : undefined} inactive={isMobile && !flipped} zIndex={isMobile ? (flipped ? 2 : 1) : undefined}>
             {/* Gated on the flip finishing (`backReady`) + keyed so the scan starts fresh, facing the viewer.
                 On mobile the back's content runs longer than the front's, so wrap it in its own slower
                 token override (epic 6000) — the scan line moves at ~70% of its prior speed. */}
@@ -148,6 +148,8 @@ function Face({
   back,
   solid,
   opacity,
+  inactive,
+  zIndex,
 }: {
   children: React.ReactNode;
   back?: boolean;
@@ -155,6 +157,10 @@ function Face({
   solid?: boolean;
   /** Mobile only: opacity tracking the flip so only the facing side paints (undefined → always 1). */
   opacity?: MotionValue<number>;
+  /** Mobile only: the rotated-away face is non-interactive so it can't intercept the showing face's scroll. */
+  inactive?: boolean;
+  /** Mobile only: the showing face stacks above the away one (belt-and-braces with `inactive`); desktop → undefined. */
+  zIndex?: number;
 }) {
   return (
     <motion.div
@@ -167,6 +173,8 @@ function Face({
         inset: 0,
         height: '100%',
         opacity,
+        pointerEvents: inactive ? 'none' : undefined,
+        zIndex,
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
         transform: back ? 'rotateY(180deg)' : undefined,
@@ -219,7 +227,7 @@ function CardFront({
       <StampBar right="FILE 001" />
       {/* Scroll container is a plain div (the ScanlineReveal sits inside it) — the same pattern the
           back uses, so the front scrolls reliably and its scan develops the full content like the back. */}
-      <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
+      <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8 max-sm:overscroll-contain max-sm:touch-pan-y max-sm:[-webkit-overflow-scrolling:touch]">
         {/* One slow scan develops the whole front. */}
         <ScanlineReveal trigger="mount" duration="epic" stagger="loose" glow className="flex flex-col gap-6">
           {/* identity */}
