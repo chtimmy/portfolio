@@ -86,6 +86,10 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
   // read the `epic` duration token). Override just that token for this subtree; desktop is untouched.
   const baseTokens = useMotionTokens();
   const slowTokens = { ...baseTokens, duration: { ...baseTokens.duration, epic: 4200 } };
+  // The back's scan covers more content than the front in the same time, so its line reads faster.
+  // Give the back its own (longer) epic so the scan line moves at ~70% of its current speed
+  // (4200 / 0.7 = 6000ms). Nested inside `slowTokens`, so only the back is affected; the front stays 4200.
+  const backTokens = { ...baseTokens, duration: { ...baseTokens.duration, epic: 6000 } };
 
   const card = (
     <div className="mx-auto flex min-h-full w-full max-w-5xl items-center justify-center px-4 py-4 sm:py-12">
@@ -107,9 +111,17 @@ export function DossierCard({ data = dossier, flipped: flippedProp, onFlippedCha
             )}
           </Face>
           <Face back solid={isMobile} opacity={isMobile ? backOpacity : undefined}>
-            {/* Gated on the flip finishing (`backReady`) + keyed so the scan starts fresh, facing the viewer. */}
+            {/* Gated on the flip finishing (`backReady`) + keyed so the scan starts fresh, facing the viewer.
+                On mobile the back's content runs longer than the front's, so wrap it in its own slower
+                token override (epic 6000) — the scan line moves at ~70% of its prior speed. */}
             {flipped && backReady ? (
-              <CardBack key={openCount} data={data} onFlip={() => setFlipped(false)} />
+              isMobile ? (
+                <MotionProvider tokens={backTokens} reducedMotion={reduced} as={false}>
+                  <CardBack key={openCount} data={data} onFlip={() => setFlipped(false)} />
+                </MotionProvider>
+              ) : (
+                <CardBack key={openCount} data={data} onFlip={() => setFlipped(false)} />
+              )
             ) : (
               <BackPlaceholder />
             )}
