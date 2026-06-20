@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { useReducedMotion } from '@umbra/motion';
 
@@ -33,11 +34,15 @@ export function ExitIntentPrompt({ open, onDecrypt, onLeave, onDismiss }: ExitIn
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onDismiss]);
 
-  return (
+  // Portal to <body> so the overlay escapes the Landing tree and sits above the SceneLightbox panel,
+  // which is itself portaled to <body> at z-index 9999 (✕ at 10000). Without this it would paint behind.
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          className="fixed inset-0 z-[10010] flex items-center justify-center p-6"
           style={{ background: 'rgba(0,0,0,0.6)' }}
           initial={reduced ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -90,6 +95,7 @@ export function ExitIntentPrompt({ open, onDecrypt, onLeave, onDismiss }: ExitIn
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
