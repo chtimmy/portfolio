@@ -1,17 +1,18 @@
 'use client';
 
-import { Clock } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Clock, Maximize2 } from 'lucide-react';
 import { systemCategoryColors, systemPalette } from '../../../_data/systems';
 import type { Architecture, ArchNode, ArchRole } from '../../../_data/systems';
-import { ArchitectureDiagram } from './ArchitectureDiagram';
+import { DiagramZoomOverlay } from './DiagramZoomOverlay';
 
 // Mobile-only reflow of the desktop ArchitectureDiagram. It consumes the SAME `Architecture` data
 // (single source of truth) but lays it out vertically so it fits a phone without the desktop
 // diagram's horizontal overflow/overlap. Static markup → reduced-motion safe by construction.
 //
-// `linear`/`converge`/`branch` → a top-to-bottom VerticalFlow spine. `hub` → AnchoredHub (Phase 2;
-// currently falls back to the desktop diagram). The schedule/`builtWith` footer mirrors the desktop
-// component's footer. The desktop ArchitectureDiagram is never modified.
+// `linear`/`converge`/`branch` → a top-to-bottom VerticalFlow spine. `hub` → AnchoredHub (hub chip
+// on top, spokes branching off a left spine beneath). The schedule/`builtWith` footer mirrors the
+// desktop component's footer. The desktop ArchitectureDiagram is never modified.
 
 const NEUTRAL = systemPalette.muted;
 
@@ -166,6 +167,60 @@ function VerticalLinear({ arch }: { arch: Architecture }) {
   );
 }
 
+/** A horizontal connector for a hub spoke: direction glyph (↔ / → / ←) with the edge label beneath. */
+function SideConnector({ glyph, label }: { glyph: string; label?: string }) {
+  return (
+    <div
+      className="flex shrink-0 flex-col items-center justify-center px-1"
+      style={{ width: 64 }}
+    >
+      <span aria-hidden className="text-base leading-none" style={{ color: systemPalette.muted }}>
+        {glyph}
+      </span>
+      {label && (
+        <span
+          className="u-mono mt-0.5 text-center text-[9px] leading-tight tracking-wide"
+          style={{ color: systemPalette.muted }}
+        >
+          {label}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Hub → vertical: the hub chip on top, then each spoke as a branch off a left spine beneath it.
+ *  Hub detection + direction glyphs mirror the desktop HubFlow (↔ bidirectional, → / ← one-way). */
+function AnchoredHub({ arch }: { arch: Architecture }) {
+  const hub =
+    arch.nodes.find((n) => arch.edges.every((e) => e.from === n.id || e.to === n.id)) ?? arch.nodes[0];
+  if (!hub) return null;
+  const spokes = arch.nodes.filter((n) => n.id !== hub.id);
+
+  return (
+    <div className="flex flex-col">
+      <MobileNodeChip node={hub} />
+      <div
+        className="mt-2 ml-3 flex flex-col gap-2 pl-2"
+        style={{ borderLeft: '1px solid rgba(255,255,255,0.14)' }}
+      >
+        {spokes.map((s) => {
+          const edge = edgeBetween(arch, hub.id, s.id);
+          const glyph = edge?.bidirectional ? '↔' : edge && edge.from !== hub.id ? '←' : '→';
+          return (
+            <div key={s.id} className="flex items-center gap-1">
+              <SideConnector glyph={glyph} label={edge?.label} />
+              <div className="min-w-0 flex-1">
+                <MobileNodeChip node={s} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /** Schedule + builtWith footer — mirrors the desktop ArchitectureDiagram's footer (stacked here). */
 function DiagramFooter({ arch }: { arch: Architecture }) {
   const { schedule, builtWith } = arch;
@@ -204,24 +259,62 @@ function DiagramFooter({ arch }: { arch: Architecture }) {
   );
 }
 
-export function MobileArchitectureDiagram({ architecture }: { architecture: Architecture }) {
-  // Phase 2 replaces this hub branch with a dedicated AnchoredHub renderer. Until then hub diagrams
-  // fall back to the desktop component so those cards keep working (just cramped) during Phase 1.
-  if (architecture.layout === 'hub') {
-    return <ArchitectureDiagram architecture={architecture} />;
-  }
+export function MobileArchitectureDiagram({
+  architecture,
+  title,
+}: {
+  architecture: Architecture;
+  title?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <div
-      className="rounded-xl px-4 py-4"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
-    >
-      {architecture.layout === 'converge' ? (
-        <VerticalConverge arch={architecture} />
-      ) : (
-        <VerticalLinear arch={architecture} />
-      )}
-      <DiagramFooter arch={architecture} />
+    <div className="relative">
+      {/* Tapping anywhere on the inline diagram opens the zoom overlay (a scroll/drag won't fire a
+          click, so reading still scrolls normally). The corner button is the keyboard-accessible
+          affordance; the inline reflow remains the accessible representation of the diagram. */}
+      <div
+        role="presentation"
+        onClick={() => setOpen(true)}
+        className="cursor-zoom-in rounded-xl px-4 py-4"
+        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+      >
+        {architecture.layout === 'hub' ? (
+          <AnchoredHub arch={architecture} />
+        ) : architecture.layout === 'converge' ? (
+          <VerticalConverge arch={architecture} />
+        ) : (
+          <VerticalLinear arch={architecture} />
+        )}
+        <DiagramFooter arch={architecture} />
+      </div>
+
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(true);
+        }}
+        aria-label="View full diagram"
+        className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-lg outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+        style={{
+          color: systemPalette.muted,
+          background: 'rgba(0,0,0,0.35)',
+          border: '1px solid rgba(255,255,255,0.12)',
+        }}
+      >
+        <Maximize2 size={14} strokeWidth={2} aria-hidden />
+      </button>
+
+      <DiagramZoomOverlay
+        architecture={architecture}
+        open={open}
+        onClose={() => setOpen(false)}
+        triggerRef={triggerRef}
+        title={title}
+      />
     </div>
   );
 }

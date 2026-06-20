@@ -255,7 +255,7 @@ function Visual({ card }: { card: SystemCard }) {
   // Mobile only: the desktop diagram overflows/overlaps in the narrow modal, so reflow it vertically.
   // Desktop renders the original ArchitectureDiagram unchanged.
   return isMobile ? (
-    <MobileArchitectureDiagram architecture={visual.data} />
+    <MobileArchitectureDiagram architecture={visual.data} title={card.title} />
   ) : (
     <ArchitectureDiagram architecture={visual.data} />
   );
