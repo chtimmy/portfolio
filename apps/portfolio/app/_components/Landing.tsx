@@ -7,6 +7,7 @@ import { SpaceBackdrop } from './SpaceBackdrop';
 import { OrbitSystem } from './OrbitSystem';
 import { NodeSubpage } from './subpages/NodeSubpage';
 import { ExitIntentPrompt } from './subpages/dossier/ExitIntentPrompt';
+import { MobileNotice } from './MobileNotice';
 import { PortalReveal } from './PortalReveal';
 import { projects } from './projects';
 import { NodeNavContext } from './node-nav';
@@ -196,6 +197,8 @@ export function Landing() {
           }}
           onDismiss={() => setPromptOpen(false)}
         />
+
+        <MobileNotice />
 
         {/* eyebrow (outside the camera so it doesn't fly) */}
         <header className="u-mono pointer-events-none absolute inset-x-6 top-6 z-20 hidden text-[11px] tracking-[0.12em] text-[color:var(--muted)] sm:flex">
