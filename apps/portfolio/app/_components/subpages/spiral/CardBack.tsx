@@ -9,6 +9,7 @@ import { CaseStudyTag, CategoryBadge, ToolChips } from './BentoCard';
 import { ArchitectureDiagram } from './ArchitectureDiagram';
 import { resolveIcon } from './icons';
 import { useNodeNav } from '../../node-nav';
+import { useIsMobile } from '../../useIsMobile';
 
 /**
  * The shared back-of-card "trailer" — same section order on every card so the library reads as one
@@ -231,21 +232,32 @@ export function CardBack({
 /** The back's flexible visual slot: an image screenshot, or the architecture diagram (the default —
  *  falls back to `card.architecture` when `visual` is omitted). */
 function Visual({ card }: { card: SystemCard }) {
+  const isMobile = useIsMobile();
   const visual =
     card.visual ??
     (card.architecture ? ({ type: 'diagram', data: card.architecture } as const) : null);
   if (!visual) return null;
   if (visual.type === 'image') {
+    const base = visual.width ?? '100%';
+    // Mobile only: double the configured width (percentages clamp at 100%) so a half-width
+    // screenshot like Lead to Outreach reads at a usable size on a phone. Desktop keeps `base`.
+    const width = isMobile ? doubledPercent(base) : base;
     return (
       <img
         src={visual.src}
         alt={visual.alt}
         className="mx-auto block rounded-xl object-contain"
-        style={{ width: visual.width ?? '100%', maxHeight: '46vh', border: '1px solid rgba(255,255,255,0.08)' }}
+        style={{ width, maxHeight: '46vh', border: '1px solid rgba(255,255,255,0.08)' }}
       />
     );
   }
   return <ArchitectureDiagram architecture={visual.data} />;
+}
+
+/** Double a percentage width, clamped to 100%; non-percentage widths pass through unchanged. */
+function doubledPercent(w: string): string {
+  const m = /^(\d+(?:\.\d+)?)%$/.exec(w.trim());
+  return m ? `${Math.min(100, parseFloat(m[1]!) * 2)}%` : w;
 }
 
 /** "View full case study →" — in-app node nav (caseStudyNodeId) or external link (caseStudyUrl). */
