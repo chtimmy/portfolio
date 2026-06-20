@@ -147,8 +147,12 @@ function Face({
   return (
     <motion.div
       style={{
-        position: back ? 'absolute' : 'relative',
-        inset: back ? 0 : undefined,
+        // Both faces are absolutely pinned to the flip container (which has an explicit height), so each
+        // gets a *definite* height. The front previously used `position: relative; height: 100%`, whose
+        // percentage didn't resolve inside the preserve-3d/dvh container — its inner `flex-1` scroll
+        // region never bounded, so the card overflowed and the page scrolled instead of the About text.
+        position: 'absolute',
+        inset: 0,
         height: '100%',
         opacity,
         backfaceVisibility: 'hidden',
