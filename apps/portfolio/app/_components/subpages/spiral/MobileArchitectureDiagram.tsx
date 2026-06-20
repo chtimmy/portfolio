@@ -190,7 +190,8 @@ function SideConnector({ glyph, label }: { glyph: string; label?: string }) {
 }
 
 /** Hub → vertical: the hub chip on top, then each spoke as a branch off a left spine beneath it.
- *  Hub detection + direction glyphs mirror the desktop HubFlow (↔ bidirectional, → / ← one-way). */
+ *  Hub detection mirrors the desktop HubFlow; like the desktop diagram, every spoke uses the
+ *  two-way (↔) marker (desktop HubFlow renders all spokes ↔/↕ regardless of the edge direction). */
 function AnchoredHub({ arch }: { arch: Architecture }) {
   const hub =
     arch.nodes.find((n) => arch.edges.every((e) => e.from === n.id || e.to === n.id)) ?? arch.nodes[0];
@@ -206,10 +207,9 @@ function AnchoredHub({ arch }: { arch: Architecture }) {
       >
         {spokes.map((s) => {
           const edge = edgeBetween(arch, hub.id, s.id);
-          const glyph = edge?.bidirectional ? '↔' : edge && edge.from !== hub.id ? '←' : '→';
           return (
             <div key={s.id} className="flex items-center gap-1">
-              <SideConnector glyph={glyph} label={edge?.label} />
+              <SideConnector glyph="↔" label={edge?.label} />
               <div className="min-w-0 flex-1">
                 <MobileNodeChip node={s} />
               </div>
