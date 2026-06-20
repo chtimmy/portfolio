@@ -50,7 +50,7 @@ export const dossier: DossierData = {
   name: 'Timmy Lei',
   status: 'ACTIVE',
   photoUrl: '/dossier-photo.jpg',
-  resumePdfUrl: '/timmy-lei-resume.pdf',
+  resumePdfUrl: '/Lei%20Jin%20(Timmy)%20Resume.docx.pdf',
   contacts: [
     { label: 'chtimmy02@gmail.com', href: 'mailto:chtimmy02@gmail.com', icon: '✉' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/timmy-lei/', icon: 'in' },
@@ -69,7 +69,7 @@ export const dossier: DossierData = {
       role: 'Business Development',
       org: 'REVO Music',
       orgType: 'early-stage music startup',
-      period: 'December 2025 — Current',
+      period: 'February 2026 — Current',
       points: [
         'Led artist acquisition and implemented Instantly and Make systems, improving workflow, increasing daily outreach by 6.5x and saving 15hrs/week',
         'Designed and implemented an AI-assisted artist tracking system, centralizing artist status and saving the team 20 hours/month',
