@@ -7,6 +7,7 @@ import { systemCategoryColors, systemPalette } from '../../../_data/systems';
 import type { SystemCard } from '../../../_data/systems';
 import { CaseStudyTag, CategoryBadge, ToolChips } from './BentoCard';
 import { ArchitectureDiagram } from './ArchitectureDiagram';
+import { MobileArchitectureDiagram } from './MobileArchitectureDiagram';
 import { resolveIcon } from './icons';
 import { useNodeNav } from '../../node-nav';
 import { useIsMobile } from '../../useIsMobile';
@@ -251,7 +252,13 @@ function Visual({ card }: { card: SystemCard }) {
       />
     );
   }
-  return <ArchitectureDiagram architecture={visual.data} />;
+  // Mobile only: the desktop diagram overflows/overlaps in the narrow modal, so reflow it vertically.
+  // Desktop renders the original ArchitectureDiagram unchanged.
+  return isMobile ? (
+    <MobileArchitectureDiagram architecture={visual.data} />
+  ) : (
+    <ArchitectureDiagram architecture={visual.data} />
+  );
 }
 
 /** Double a percentage width, clamped to 100%; non-percentage widths pass through unchanged. */
