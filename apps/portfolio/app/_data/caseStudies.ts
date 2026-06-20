@@ -404,7 +404,10 @@ export const caseStudies: Record<string, CaseStudy> = {
           },
         ],
         links: [
-          { label: 'Watch the walkthrough', href: '#' },
+          {
+            label: 'Watch the walkthrough',
+            href: 'https://www.loom.com/share/f51a44c384af48fa88fc26ef8bde7097',
+          },
         ],
       },
     ],

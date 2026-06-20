@@ -360,6 +360,8 @@ function StepCard({
                 <a
                   key={l.label}
                   href={l.href}
+                  target={l.href.startsWith('http') ? '_blank' : undefined}
+                  rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                   className="rounded-full px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
                   style={{ background: 'var(--accent)', color: 'var(--void)' }}
                 >
