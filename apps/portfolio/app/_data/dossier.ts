@@ -56,7 +56,7 @@ export const dossier: DossierData = {
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/timmy-lei/', icon: 'in' },
   ],
   about:
-    'I design and implement business systems that replace manual operations with automation and AI, built on experience acquiring and engaging customers directly and supporting how a growing organization runs day to day. I focus on understanding how work actually flows through the business, then design systems that solve problems and remove friction for teams. My work blends business analysis, system design, automation logic, and AI collaboration to help organizations operate more efficiently and effectively.',
+    'I design and implement business systems that remove friction for teams and customers, built on experience acquiring and engaging customers directly and supporting how a growing organization runs day to day. I focus on understanding how work actually flows through the business, then design systems that solve problems and remove friction for teams. My work blends business analysis, system design, automation logic, and AI collaboration to help organizations operate more efficiently and effectively.',
   softSkills: [
     { label: 'System Design', value: 95 },
     { label: 'Operations Optimization', value: 91 },
