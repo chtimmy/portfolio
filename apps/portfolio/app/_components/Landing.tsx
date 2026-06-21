@@ -112,14 +112,24 @@ export function Landing() {
   useEffect(() => {
     if (!isResumeOpen) return;
     if (typeof window === 'undefined' || !window.matchMedia('(pointer: fine)').matches) return;
+    // Don't treat the cursor leaving the top edge as an exit attempt until the scene
+    // has settled — an upward mouse sweep right after opening (toward the browser
+    // chrome) shouldn't be mistaken for the viewer leaving.
+    let armed = false;
+    const armTimer = window.setTimeout(() => {
+      armed = true;
+    }, 1200);
     const onMouseLeave = (e: MouseEvent) => {
-      if (e.clientY <= 0 && shouldPrompt()) {
+      if (armed && e.clientY <= 0 && shouldPrompt()) {
         promptShown.current = true;
         setPromptOpen(true);
       }
     };
     document.addEventListener('mouseleave', onMouseLeave);
-    return () => document.removeEventListener('mouseleave', onMouseLeave);
+    return () => {
+      clearTimeout(armTimer);
+      document.removeEventListener('mouseleave', onMouseLeave);
+    };
   }, [isResumeOpen, shouldPrompt]);
 
   return (

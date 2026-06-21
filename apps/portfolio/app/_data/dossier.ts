@@ -56,12 +56,12 @@ export const dossier: DossierData = {
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/timmy-lei/', icon: 'in' },
   ],
   about:
-    'I design and implement business systems that replace manual operations with automations and AI. I focus on understanding how work actually flows through the business, then design systems that solve problems and remove friction for teams. My work blends business analysis, system design, automation logic, and AI collaboration to help organizations operate more efficiently and effectively.',
+    'I design and implement business systems that replace manual operations with automation and AI, built on experience acquiring and engaging customers directly and supporting how a growing organization runs day to day. I focus on understanding how work actually flows through the business, then design systems that solve problems and remove friction for teams. My work blends business analysis, system design, automation logic, and AI collaboration to help organizations operate more efficiently and effectively.',
   softSkills: [
-    { label: 'System Design', value: 85 },
+    { label: 'System Design', value: 95 },
     { label: 'Operations Optimization', value: 91 },
-    { label: 'Automation Engineering', value: 97 },
-    { label: 'AI Collaboration', value: 93 },
+    { label: 'Customer & Stakeholder Relationships', value: 97 },
+    { label: 'AI Collaboration', value: 88 },
     { label: 'Problem Decomposition', value: 100 },
   ],
   experience: [
@@ -71,9 +71,9 @@ export const dossier: DossierData = {
       orgType: 'early-stage music startup',
       period: 'February 2026 — Current',
       points: [
-        'Led artist acquisition and implemented Instantly and Make systems, improving workflow, increasing daily outreach by 6.5x and saving 15hrs/week',
-        'Designed and implemented an AI-assisted artist tracking system, centralizing artist status and saving the team 20 hours/month',
-        'Identified operational bottlenecks and developed strategic initiatives for artist engagement, marketing, and platform growth',
+        'Led artist acquisition end to end, owning outreach, relationship-building, and qualifying new artists for the platform',
+        'Built Instantly and Make outreach automations that improved workflow, increased daily outreach by 6.5x and cut manual work by 20hrs/week, scaling acquisition without scaling manual work',
+        'Designed and implemented an AI-assisted artist tracking system, centralizing artist status across the team and saving the team 20 hours/month',
       ],
     },
     {
@@ -117,6 +117,6 @@ export const dossier: DossierData = {
     { name: 'Claude 101 Certificate', issuer: 'Anthropic', completed: 'Jun 2026' },
     { name: 'AI Fluency Certificate', issuer: 'Anthropic', completed: 'Jun 2026' },
   ],
-  tools: ['Coda', 'Make', 'Zapier', 'Notion', 'Airtable', 'Google Workspace',
-    'Microsoft Office', 'Jira', 'SQL', 'Tableau'],
+  tools: ['Coda', 'Make', 'Zapier', 'Instantly', 'Airtable', 'HubSpot',
+    'Vercel', 'Jira', 'SQL', 'Tableau'],
 };
