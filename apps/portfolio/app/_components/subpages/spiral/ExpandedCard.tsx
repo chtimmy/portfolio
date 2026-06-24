@@ -67,11 +67,22 @@ export function ExpandedCard({
     return { vw, vh, width: Math.min(1000, vw - 32), maxH, minH: Math.min(420, maxH) };
   }, []);
 
+  const [phase, setPhase] = useState<Phase>(reduced ? 'open' : 'flip');
+  // Once settled open (or reduced), render the back FLAT — no perspective / preserve-3d / rotation.
+  // Safari mis-maps hit-testing for a scroll container nested in a 3D transform, so the bottom-most
+  // controls (e.g. "View full case study") become unclickable; the flat resting state fixes that.
+  // The flip still animates on open/close — only the interactive resting state drops the 3D context.
+  const flat = reduced || phase === 'open';
+
   // Measured natural height of the back content (an unclamped, fixed-width wrapper in CardBack) →
   // drives the modal height, so the card grows/shrinks to fit when the extended block toggles.
   const measureRef = useRef<HTMLDivElement>(null);
   const extendedRef = useRef<HTMLDivElement>(null);
   const [naturalH, setNaturalH] = useState<number | null>(null);
+  // Re-attach + re-measure when the back subtree swaps (3D flip ↔ flat settled): that remounts
+  // CardBack, so a one-time observer would be left watching the detached node and freeze a stale
+  // (Safari: collapsed-backface) height. React commits refs before passive effects, so on the
+  // `flat`-change re-run measureRef.current already points at the newly mounted node.
   useEffect(() => {
     const el = measureRef.current;
     if (!el) return;
@@ -80,7 +91,7 @@ export function ExpandedCard({
     ro.observe(el);
     update();
     return () => ro.disconnect();
-  }, []);
+  }, [flat]);
 
   const boxForHeight = (h: number): Box => {
     const height = Math.max(sizing.minH, Math.min(h, sizing.maxH));
@@ -117,7 +128,6 @@ export function ExpandedCard({
     return () => clearTimeout(t);
   }, [showMore, reduced, sizing.maxH]);
 
-  const [phase, setPhase] = useState<Phase>(reduced ? 'open' : 'flip');
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef(onClose);
@@ -126,7 +136,8 @@ export function ExpandedCard({
   // `flipClose` holds the current (possibly grown) expanded size; `minimize` morphs back to the tile.
   const expanded = phase === 'expand' || phase === 'open' || phase === 'flipClose';
   const outerBox = reduced || expanded ? expandedBox : cardBox;
-  const rotate = phase === 'flipClose' || phase === 'minimize' ? FLIP_CLOSE : FLIP_TO;
+  const closing = phase === 'flipClose' || phase === 'minimize';
+  const rotate = closing ? FLIP_CLOSE : FLIP_TO;
 
   const requestClose = () => {
     if (reduced || phase === 'flip') {
@@ -175,6 +186,21 @@ export function ExpandedCard({
 
   if (typeof document === 'undefined') return null;
 
+  // Shared back content — rendered flat when settled, or inside the back face during the flip.
+  const back = (
+    <CardBack
+      card={card}
+      onClose={requestClose}
+      closeBtnRef={closeBtnRef}
+      showMore={showMore}
+      onToggleMore={onToggleMore}
+      revealText={revealText}
+      measureRef={measureRef}
+      extendedRef={extendedRef}
+      width={sizing.width}
+    />
+  );
+
   return createPortal(
     <div className="fixed inset-0 z-[10000]">
       {/* Backdrop — fades in during the expand; click-outside closes. */}
@@ -202,31 +228,28 @@ export function ExpandedCard({
           else if (phase === 'minimize') closeRef.current();
         }}
         className="overflow-hidden"
-        style={{ position: 'fixed', perspective: 2000, ...cardSurfaceFrame(card) }}
+        style={{ position: 'fixed', perspective: flat ? undefined : 2000, ...cardSurfaceFrame(card) }}
       >
-        {reduced ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
-            style={{ height: '100%' }}
-          >
-            <CardBack
-              card={card}
-              onClose={requestClose}
-              closeBtnRef={closeBtnRef}
-              showMore={showMore}
-              onToggleMore={onToggleMore}
-              revealText={revealText}
-              measureRef={measureRef}
-              extendedRef={extendedRef}
-              width={sizing.width}
-            />
-          </motion.div>
+        {flat ? (
+          // Settled (or reduced): a plain, non-3D context Safari hit-tests correctly. Cross-fade in
+          // only for reduced motion; arriving from the flip it's already shown, so render instantly.
+          reduced ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+              style={{ height: '100%' }}
+            >
+              {back}
+            </motion.div>
+          ) : (
+            <div style={{ height: '100%' }}>{back}</div>
+          )
         ) : (
           // Inner = the rotateY flip (separate node so the morph never overwrites the transform).
+          // Unmounted once `flat`, so `initial` starts from the back face when re-mounting to close.
           <motion.div
-            initial={{ rotateY: 0 }}
+            initial={{ rotateY: closing ? FLIP_TO : 0 }}
             animate={{ rotateY: rotate }}
             transition={{ duration: DUR_FLIP, ease }}
             onAnimationComplete={() => {
@@ -247,17 +270,7 @@ export function ExpandedCard({
                 animate={{ opacity: expanded ? 1 : 0 }}
                 transition={{ duration: 0.3, ease }}
               >
-                <CardBack
-                  card={card}
-                  onClose={requestClose}
-                  closeBtnRef={closeBtnRef}
-                  showMore={showMore}
-                  onToggleMore={onToggleMore}
-                  revealText={revealText}
-                  measureRef={measureRef}
-                  extendedRef={extendedRef}
-                  width={sizing.width}
-                />
+                {back}
               </motion.div>
             </Face>
           </motion.div>
@@ -289,6 +302,10 @@ function Face({ children, back }: { children: React.ReactNode; back?: boolean })
         inset: 0,
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
+        // Safari/Firefox don't apply backface-visibility to hit-testing, so the away-facing front
+        // face still swallows clicks meant for the back face's controls (e.g. "View full case
+        // study"). Only the interactive back face should receive pointer events.
+        pointerEvents: back ? 'auto' : 'none',
         transform: back ? 'rotateY(180deg)' : undefined,
       }}
     >
