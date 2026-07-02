@@ -1,7 +1,7 @@
 'use client';
 
 import type { RefObject } from 'react';
-import { ArrowRight, ChevronDown, X } from 'lucide-react';
+import { ArrowRight, ChevronDown, Play, X } from 'lucide-react';
 import { useReducedMotion } from '@umbra/motion';
 import { systemCategoryColors, systemPalette } from '../../../_data/systems';
 import type { SystemCard } from '../../../_data/systems';
@@ -267,48 +267,62 @@ function doubledPercent(w: string): string {
   return m ? `${Math.min(100, parseFloat(m[1]!) * 2)}%` : w;
 }
 
-/** "View full case study →" — in-app node nav (caseStudyNodeId) or external link (caseStudyUrl). */
+/**
+ * Bottom-of-back CTA row. Renders the primary "View full case study" action (in-app node nav via
+ * `caseStudyNodeId`, or an external link via `caseStudyUrl`) and/or a subtler "Watch the walkthrough"
+ * link (`walkthroughUrl`) — they coexist in a wrapping row. Returns null when no CTA applies.
+ */
 function Cta({ card }: { card: SystemCard }) {
-  const { base } = systemCategoryColors[card.category];
+  const { base, tint } = systemCategoryColors[card.category];
   const nav = useNodeNav();
 
-  if (card.caseStudyNodeId) {
-    const nodeId = card.caseStudyNodeId;
-    return (
-      <button
-        type="button"
-        onClick={(e) => nav?.(nodeId, e.currentTarget.getBoundingClientRect())}
-        className="u-mono mt-1 inline-flex w-fit items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold tracking-[0.06em] outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
-        style={{
-          background: base,
-          color: '#05060a',
-          boxShadow: `0 8px 24px color-mix(in srgb, ${base} 35%, transparent)`,
-        }}
-      >
-        View full case study
-        <ArrowRight size={15} strokeWidth={2.25} />
-      </button>
-    );
-  }
+  const primaryPill =
+    'u-mono inline-flex w-fit items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold tracking-[0.06em] outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]';
+  const primaryStyle = {
+    background: base,
+    color: '#05060a',
+    boxShadow: `0 8px 24px color-mix(in srgb, ${base} 35%, transparent)`,
+  } as const;
 
-  if (card.caseStudyUrl) {
-    return (
-      <a
-        href={card.caseStudyUrl}
-        className="u-mono mt-1 inline-flex w-fit items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold tracking-[0.06em] outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
-        style={{
-          background: base,
-          color: '#05060a',
-          boxShadow: `0 8px 24px color-mix(in srgb, ${base} 35%, transparent)`,
-        }}
-      >
-        View full case study
-        <ArrowRight size={15} strokeWidth={2.25} />
-      </a>
-    );
-  }
+  const nodeId = card.caseStudyNodeId;
+  const caseStudy = nodeId ? (
+    <button type="button" onClick={(e) => nav?.(nodeId, e.currentTarget.getBoundingClientRect())} className={primaryPill} style={primaryStyle}>
+      View full case study
+      <ArrowRight size={15} strokeWidth={2.25} />
+    </button>
+  ) : card.caseStudyUrl ? (
+    <a href={card.caseStudyUrl} className={primaryPill} style={primaryStyle}>
+      View full case study
+      <ArrowRight size={15} strokeWidth={2.25} />
+    </a>
+  ) : null;
 
-  return null;
+  // Subtler, outlined variant (mirrors ExtendedToggle) so it reads secondary to the case-study action.
+  const walkthrough = card.walkthroughUrl ? (
+    <a
+      href={card.walkthroughUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="u-mono inline-flex w-fit items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold tracking-[0.06em] outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+      style={{
+        color: tint,
+        background: `color-mix(in srgb, ${base} 12%, transparent)`,
+        border: `1px solid color-mix(in srgb, ${base} 35%, transparent)`,
+      }}
+    >
+      <Play size={14} strokeWidth={2.25} aria-hidden />
+      Watch the walkthrough
+    </a>
+  ) : null;
+
+  if (!caseStudy && !walkthrough) return null;
+
+  return (
+    <div className="mt-1 flex flex-wrap items-center gap-3">
+      {caseStudy}
+      {walkthrough}
+    </div>
+  );
 }
 
 /** The "View more details" / "Show less" toggle for an extended card's back. */

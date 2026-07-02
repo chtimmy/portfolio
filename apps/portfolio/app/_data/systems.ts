@@ -95,6 +95,8 @@ export interface SystemCard {
   stack?: { tool: string; role: string }[];
   /** External "View full case study" link — used when there's no `caseStudyNodeId`. */
   caseStudyUrl?: string;
+  /** External "Watch the walkthrough" link (e.g. a Loom recording) — opens in a new tab. */
+  walkthroughUrl?: string;
 
   /**
    * Extended back: a depth tier between a normal back and a case study. When true, the back renders
@@ -332,6 +334,7 @@ export const systems: SystemCard[] = [
     ],
     highlight:
       'Can log and grab files from Google Drives per client as well.',
+    walkthroughUrl: 'https://www.loom.com/share/aa4be94fff05463ebf91e41a9dfe1a3e',
   },
   {
     id: 'sheet-cleaner',
